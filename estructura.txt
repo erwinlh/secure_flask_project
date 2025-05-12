@@ -1,4 +1,4 @@
-tu_proyecto/
+app/
 ├── .env                 # Variables de entorno (¡CRÍTICO! Crear y rellenar)
 ├── app.py               # La aplicación Flask principal
 ├── functions.py         # Funciones de base de datos, seguridad, etc.
