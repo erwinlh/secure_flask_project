@@ -1,0 +1,38 @@
+¡Exacto! Para asegurarte de que tu entorno Python tenga todas las librerías necesarias para ejecutar tu aplicación Flask, necesitas un archivo `requirements.txt`. Este archivo lista todas las dependencias de tu proyecto y sus versiones.
+
+Aquí tienes el contenido para tu `requirements.txt` basándote en las funcionalidades que hemos implementado:
+
+```
+Flask==2.3.3
+python-dotenv==1.0.0
+mysql-connector-python==8.0.33
+bcrypt==4.0.1
+cryptography==41.0.7
+```
+
+**Explicación de las librerías:**
+
+* **`Flask==2.3.3`**: El microframework web que estás utilizando.
+* **`python-dotenv==1.0.0`**: Para cargar variables de entorno desde un archivo `.env` (utilizado en `app.py` y `functions.py`).
+* **`mysql-connector-python==8.0.33`**: El conector oficial de MySQL para Python, que usas en `functions.py` para interactuar con tu base de datos.
+* **`bcrypt==4.0.1`**: Para hashing seguro de contraseñas.
+* **`cryptography==41.0.7`**: Una librería criptográfica robusta y de alto rendimiento que incluye la implementación de `Fernet` para el cifrado de la nota secreta.
+
+**Cómo usar este archivo:**
+
+1.  **Crea el archivo:** En la raíz de tu proyecto (al mismo nivel que `app.py`, `functions.py`, y `.env`), crea un archivo llamado `requirements.txt`.
+2.  **Copia el contenido:** Pega el texto de arriba en el archivo `requirements.txt`.
+3.  **Instala las dependencias:**
+    * **Recomendado:** Usa un entorno virtual. Si aún no tienes uno, créalo:
+        ```bash
+        python -m venv venv
+        ```
+    * Activa tu entorno virtual:
+        * En Windows: `.\venv\Scripts\activate`
+        * En macOS/Linux: `source venv/bin/activate`
+    * Una vez activado el entorno virtual, instala todas las dependencias:
+        ```bash
+        pip install -r requirements.txt
+        ```
+
+Esto instalará todas las librerías necesarias en tu entorno virtual, asegurando que tu aplicación Flask tenga todo lo que necesita para ejecutarse correctamente.

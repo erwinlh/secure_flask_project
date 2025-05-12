@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Bienvenido{% endblock %}
+
+{% block content %}
+    <div class="jumbotron text-center">
+        <h1 class="display-4">¡Bienvenido a Mi App Segura!</h1>
+        <p class="lead">Tu plataforma segura para gestionar usuarios y acceso.</p>
+        <hr class="my-4">
+        <p>Inicia sesión o regístrate para comenzar a explorar.</p>
+        <p class="lead">
+            <a class="btn btn-primary btn-lg" href="{{ url_for('login') }}" role="button">Iniciar Sesión</a>
+            <a class="btn btn-secondary btn-lg" href="{{ url_for('register') }}" role="button">Registrarse</a>
+        </p>
+    </div>
+{% endblock %}

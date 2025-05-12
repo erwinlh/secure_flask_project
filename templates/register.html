@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Registrarse{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h2>Registrarse</h2>
+        <form method="POST" action="{{ url_for('register') }}">
+            <div class="mb-3">
+                <label for="username" class="form-label">Usuario:</label>
+                <input type="text" class="form-control" id="username" name="username" value="{{ username if username else '' }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <input type="email" class="form-control" id="email" name="email" value="{{ email if email else '' }}" required>
+                <small class="form-text text-muted">Tu email estará cifrado en la base de datos.</small>
+            </div>
+            <div class="mb-3">
+                <label for="telefono" class="form-label">Número de Teléfono:</label>
+                <input type="text" class="form-control" id="telefono" name="telefono" value="{{ telefono if telefono else '' }}">
+                <small class="form-text text-muted">Tu teléfono estará cifrado en la base de datos.</small>
+            </div>
+            <div class="mb-3">
+                <label for="rut" class="form-label">RUT/ID Fiscal:</label>
+                <input type="text" class="form-control" id="rut" name="rut" value="{{ rut if rut else '' }}">
+                <small class="form-text text-muted">Tu RUT/ID Fiscal estará cifrado en la base de datos.</small>
+            </div>
+            <div class="mb-3">
+                <label for="direccion" class="form-label">Dirección:</label>
+                <input type="text" class="form-control" id="direccion" name="direccion" value="{{ direccion if direccion else '' }}">
+                <small class="form-text text-muted">Tu dirección estará cifrada en la base de datos.</small>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña:</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <div class="mb-3">
+                <label for="nota_secreta" class="form-label">Nota Secreta (Opcional):</label>
+                <input type="text" class="form-control" id="nota_secreta" name="nota_secreta" value="{{ nota_secreta if nota_secreta else '' }}">
+                <small class="form-text text-muted">Esta nota también estará cifrada.</small>
+            </div>
+            <button type="submit" class="btn btn-primary">Registrar</button>
+        </form>
+        <p class="mt-3">¿Ya tienes una cuenta? <a href="{{ url_for('login') }}">Inicia sesión aquí</a>.</p>
+    </div>
+{% endblock %}

@@ -1,0 +1,17 @@
+tu_proyecto/
+├── .env                 # Variables de entorno (¡CRÍTICO! Crear y rellenar)
+├── app.py               # La aplicación Flask principal
+├── functions.py         # Funciones de base de datos, seguridad, etc.
+├── requirements.txt     # Lista de dependencias de Python
+├── templates/
+│   ├── base.html        # Plantilla base con la navbar, mensajes flash
+│   ├── dashboard.html   # El panel de control principal del usuario
+│   ├── login.html       # Página de inicio de sesión
+│   ├── register.html    # Página de registro de usuario
+│   └── change_password.html # Página para cambiar la contraseña
+└── static/
+    ├── css/
+    │   └── style.css    # Tus estilos CSS personalizados
+    ├── js/
+    │   └── script.js    # Tu JavaScript para la interacción de la UI
+    └── logo2.png        # (Opcional) Tu imagen de logo

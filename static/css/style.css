@@ -1,0 +1,91 @@
+<style>
+
+body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .navbar {
+            background-color: #343a40 !important; /* Color oscuro para la navbar */
+        }
+        .navbar-brand, .nav-link {
+            color: #f8f9fa !important; /* Texto blanco para enlaces */
+        }
+        .navbar-brand:hover, .nav-link:hover {
+            color: #adb5bd !important; /* Texto gris claro al pasar el mouse */
+        }
+        .footer {
+            background-color: #343a40;
+            color: #f8f9fa;
+            padding: 20px 0;
+            text-align: center;
+            margin-top: auto; /* Empuja el footer al final de la página */
+        }
+        .messages {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .messages li {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: .25rem;
+        }
+        .messages .alert-success { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .messages .alert-danger { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .messages .alert-warning { background-color: #fff3cd; border-color: #ffeeba; color: #856404; }
+        .messages .alert-info { background-color: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+
+
+  .navbar {
+    background-color: #343a40 !important;
+    color: #f8f9fa !important;
+  }
+  .navbar-brand:hover,
+  .nav-link:hover {
+    color: #adb5bd !important;
+  }
+  .main-content {
+    flex: 1;
+  }
+  .footer {
+    position: absolute !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    background-color: #343a40;
+    color: #f8f9fa;
+    padding: 20px 0;
+    text-align: center;
+    margin-top: auto;
+  }
+  .messages {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  .messages li {
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: .25rem;
+  }
+  .messages .alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+  }
+  .messages .alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+  }
+  .messages .alert-warning {
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+    color: #856404;
+  }
+  .messages .alert-info {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+  }
+</style>

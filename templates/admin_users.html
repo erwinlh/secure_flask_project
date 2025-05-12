@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Administración de Usuarios{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h2>Gestión de Usuarios</h2>
+
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Nivel</th>
+                    <th>Fecha de Creación</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.usuario }}</td>
+                    <td>{{ user.nivel }}</td> {# Esto mostrará 'Pendiente de Aprobación' gracias a functions.py #}
+                    <td>{{ user.fecha_creacion.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        <a href="{{ url_for('admin_edit_user', user_id=user.id) }}" class="btn btn-sm btn-warning">Editar Nivel</a>
+                        {% if user.id != session.get('user_id') %} {# No permitir eliminarse a sí mismo #}
+                            <form action="{{ url_for('admin_delete_user', user_id=user.id) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar a este usuario?');">Eliminar</button>
+                            </form>
+                        {% else %}
+                            <button class="btn btn-sm btn-secondary" disabled>No Eliminar</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5">No hay usuarios registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

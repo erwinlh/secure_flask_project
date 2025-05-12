@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard de Usuario{% endblock %}
+{% block header_text %}Panel de Control{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <p>Bienvenido, <strong>{{ username }}</strong>! Tu nivel es: <strong>{{ user_level }}</strong>.</p>
+
+        <hr>
+
+        {# DIVs que se mostrarán/ocultarán según el botón presionado #}
+        <div id="div_bienvenida" class="content-area">
+            <h2>Bienvenido a tu Panel de Control</h2>
+            <p>Utiliza los menús de la barra de navegación para acceder a las diferentes funciones.</p>
+            <p>Aquí puedes ver información general o un resumen de tu actividad.</p>
+        </div>
+
+        {# Menú Básico #}
+        <div id="div_basico_1" class="content-area d-none">
+            <h3>Contenido de Botón Básico 1</h3>
+            <p>Aquí irá tu formulario para la función "Botón Básico 1".</p>
+            <form>
+                <div class="mb-3">
+                    <label for="inputBasic1" class="form-label">Input de Ejemplo 1:</label>
+                    <input type="text" class="form-control" id="inputBasic1" placeholder="Escribe algo...">
+                </div>
+                <button type="submit" class="btn btn-primary">Enviar Básico 1</button>
+            </form>
+        </div>
+        <div id="div_basico_2" class="content-area d-none">
+            <h3>Contenido de Botón Básico 2</h3>
+            <p>Aquí irá tu formulario para la función "Botón Básico 2".</p>
+        </div>
+        <div id="div_basico_3" class="content-area d-none">
+            <h3>Contenido de Botón Básico 3</h3>
+            <p>Aquí irá tu formulario para la función "Botón Básico 3".</p>
+        </div>
+        <div id="div_basico_4" class="content-area d-none">
+            <h3>Contenido de Botón Básico 4</h3>
+            <p>Aquí irá tu formulario para la función "Botón Básico 4".</p>
+        </div>
+
+        {# Menú Intermedio #}
+        <div id="div_intermedio_1" class="content-area d-none">
+            <h3>Contenido de Botón Intermedio 1</h3>
+            <p>Aquí irá tu formulario para la función "Botón Intermedio 1".</p>
+        </div>
+        <div id="div_intermedio_2" class="content-area d-none">
+            <h3>Contenido de Botón Intermedio 2</h3>
+            <p>Aquí irá tu formulario para la función "Botón Intermedio 2".</p>
+        </div>
+        <div id="div_intermedio_3" class="content-area d-none">
+            <h3>Contenido de Botón Intermedio 3</h3>
+            <p>Aquí irá tu formulario para la función "Botón Intermedio 3".</p>
+        </div>
+        <div id="div_intermedio_4" class="content-area d-none">
+            <h3>Contenido de Botón Intermedio 4</h3>
+            <p>Aquí irá tu formulario para la función "Botón Intermedio 4".</p>
+        </div>
+
+        {# Menú Avanzado #}
+        <div id="div_avanzado_1" class="content-area d-none">
+            <h3>Contenido de Botón Avanzado 1</h3>
+            <p>Aquí irá tu formulario para la función "Botón Avanzado 1".</p>
+        </div>
+        <div id="div_avanzado_2" class="content-area d-none">
+            <h3>Contenido de Botón Avanzado 2</h3>
+            <p>Aquí irá tu formulario para la función "Botón Avanzado 2".</p>
+        </div>
+        <div id="div_avanzado_3" class="content-area d-none">
+            <h3>Contenido de Botón Avanzado 3</h3>
+            <p>Aquí irá tu formulario para la función "Botón Avanzado 3".</p>
+        </div>
+        <div id="div_avanzado_4" class="content-area d-none">
+            <h3>Contenido de Botón Avanzado 4</h3>
+            <p>Aquí irá tu formulario para la función "Botón Avanzado 4".</p>
+        </div>
+
+    </div>
+{% endblock %}

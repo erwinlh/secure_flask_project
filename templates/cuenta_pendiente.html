@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Cuenta Pendiente de Aprobación{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="alert alert-info text-center" role="alert">
+            <h2>¡Tu cuenta está pendiente de aprobación!</h2>
+            <p>Gracias por registrarte, <strong>{{ username }}</strong>.</p>
+            <p>Tu cuenta aún no ha sido activada por un administrador.</p>
+            <p>Recibirás una notificación (en el futuro, esta app puede tener notificaciones) cuando tu cuenta sea aprobada y puedas acceder a todas las funcionalidades.</p>
+            <hr>
+            <p class="mb-0">Si crees que esto es un error o tienes alguna pregunta, por favor contacta con el soporte.</p>
+            <a href="{{ url_for('logout') }}" class="btn btn-primary mt-3">Cerrar Sesión</a>
+        </div>
+    </div>
+{% endblock %}

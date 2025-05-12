@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Usuario{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h2>Editar Usuario: {{ user.usuario }} (ID: {{ user.id }})</h2>
+        <p>Nivel actual: <strong>{{ user.nivel_display }}</strong></p> {# user.nivel_display mostrará 'Pendiente de Aprobación' #}
+
+        {# Mostrar datos cifrados y descifrados, solo para fines de administración #}
+        <div class="card mb-3">
+            <div class="card-header">
+                Información Detallada del Usuario
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Email: {{ user.email_decrypted if user.email_decrypted else 'N/A' }}</li>
+                <li class="list-group-item">Teléfono: {{ user.telefono_decrypted if user.telefono_decrypted else 'N/A' }}</li>
+                <li class="list-group-item">RUT: {{ user.rut_decrypted if user.rut_decrypted else 'N/A' }}</li>
+                <li class="list-group-item">Dirección: {{ user.direccion_decrypted if user.direccion_decrypted else 'N/A' }}</li>
+                <li class="list-group-item">Nota Secreta: {{ user.nota_secreta_decrypted if user.nota_secreta_decrypted else 'N/A' }}</li>
+                <li class="list-group-item">Fecha de Creación: {{ user.fecha_creacion.strftime('%Y-%m-%d %H:%M') }}</li>
+            </ul>
+        </div>
+
+        <form method="POST" action="{{ url_for('admin_edit_user', user_id=user.id) }}">
+            <div class="mb-3">
+                <label for="nivel" class="form-label">Cambiar Nivel:</label>
+                <select class="form-select" id="nivel" name="nivel" required>
+                    {# Solo opciones de nivel activo, no se puede asignar 'pending' #}
+                    <option value="user" {% if user.nivel == 'user' %}selected{% endif %}>Usuario Básico</option>
+                    <option value="admin" {% if user.nivel == 'admin' %}selected{% endif %}>Administrador</option>
+                    <option value="master" {% if user.nivel == 'master' %}selected{% endif %}>Master</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Actualizar Nivel</button>
+            <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+{% endblock %}
