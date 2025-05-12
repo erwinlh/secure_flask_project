@@ -1,7 +1,7 @@
 -- database_setup.sql
 
 -- Crear la base de datos si no existe
-CREATE DATABASE IF NOT EXISTS used_db;
+CREATE DATABASE IF NOT EXISTS app_db;
 
 -- Usar la base de datos
 USE used_db;
