@@ -1,0 +1,7 @@
+[2025-05-15 21:39:17 +0000] [18315] [INFO] Starting gunicorn 23.0.0
+[2025-05-15 21:39:17 +0000] [18315] [INFO] Listening at: http://127.0.0.1:8000 (18315)
+[2025-05-15 21:39:17 +0000] [18315] [INFO] Using worker: sync
+[2025-05-15 21:39:17 +0000] [18316] [INFO] Booting worker with pid: 18316
+[2025-05-15 21:39:17 +0000] [18317] [INFO] Booting worker with pid: 18317
+[2025-05-15 21:39:17 +0000] [18319] [INFO] Booting worker with pid: 18319
+[2025-05-15 21:39:17 +0000] [18320] [INFO] Booting worker with pid: 18320

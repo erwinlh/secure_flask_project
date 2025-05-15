@@ -1,9 +1,12 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash, session
 from datetime import timedelta
 from functools import wraps
-
-import functions  # Asegúrate de que functions.py esté en el mismo directorio o en sys.path
+import time
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_file, Response, stream_with_context
+from utils.web import procesar_fiscal_stream, exportar_consulta_xls, subir_a_defontana_por_fechas_stream, procesar_fiscal_gde_stream 
+import utils.auth as auth  # Asegúrate de que functions.py esté en el mismo directorio o en sys.path
+import utils.common as common
+import traceback
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY')  # Asegúrate de tener esto en tu .env
@@ -102,9 +105,9 @@ def register():
                 ),
             )
 
-        conn = functions.connect()
+        conn = common.connect()
         if conn:
-            if functions.registrar_usuario(
+            if auth.registrar_usuario(
                 conn, username, password, email, telefono, rut, direccion, nota_secreta
             ):
                 flash(
@@ -135,7 +138,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        conn = functions.connect()
+        conn = common.connect()
         if conn:
             (
                 login_successful,
@@ -146,7 +149,7 @@ def login():
                 decrypted_rut,
                 decrypted_direccion,
                 user_id,
-            ) = functions.login_usuario(conn, username, password)
+            ) = auth.login_usuario(conn, username, password)
             conn.close()
 
             if login_successful:
@@ -207,9 +210,9 @@ def change_password():
             flash('La nueva contraseña debe tener al menos 8 caracteres.', 'danger')
             return render_template('change_password.html')
 
-        conn = functions.connect()
+        conn = common.connect()
         if conn:
-            success, message = functions.cambiar_contrasena(
+            success, message = auth.cambiar_contrasena(
                 conn, session['username'], new_password
             )
             conn.close()
@@ -258,9 +261,9 @@ def cuenta_pendiente():
 @app.route('/admin/users')
 @requiere_nivel(['master'])  # Solo el usuario 'master' puede acceder a esta ruta
 def admin_users():
-    conn = functions.connect()
+    conn = common.connect()
     if conn:
-        users = functions.obtener_todos_los_usuarios(conn)
+        users = auth.obtener_todos_los_usuarios(conn)
         conn.close()
         return render_template('admin_users.html', users=users)
     else:
@@ -273,7 +276,7 @@ def admin_users():
 @app.route('/admin/users/edit/<int:user_id>', methods=['GET', 'POST'])
 @requiere_nivel(['master'])
 def admin_edit_user(user_id):
-    conn = functions.connect()
+    conn = common.connect()
     if not conn:
         flash('Error de conexión a la base de datos.', 'danger')
         return redirect(url_for('admin_users'))
@@ -281,7 +284,7 @@ def admin_edit_user(user_id):
     if request.method == 'POST':
         new_level = request.form.get('nivel')
         if new_level:
-            success, message = functions.actualizar_nivel_usuario(
+            success, message = auth.actualizar_nivel_usuario(
                 conn, user_id, new_level
             )
             flash(message, 'success' if success else 'danger')
@@ -293,7 +296,7 @@ def admin_edit_user(user_id):
             return redirect(url_for('admin_edit_user', user_id=user_id))
 
     # GET request
-    user = functions.obtener_usuario_por_id(conn, user_id)
+    user = auth.obtener_usuario_por_id(conn, user_id)
     conn.close()
     if user:
         return render_template('admin_edit_user.html', user=user)
@@ -310,9 +313,9 @@ def admin_delete_user(user_id):
         flash('No puedes eliminar tu propia cuenta de master.', 'danger')
         return redirect(url_for('admin_users'))
 
-    conn = functions.connect()
+    conn = common.connect()
     if conn:
-        success, message = functions.eliminar_usuario(conn, user_id)
+        success, message = auth.eliminar_usuario(conn, user_id)
         flash(message, 'success' if success else 'danger')
         conn.close()
     else:
@@ -345,8 +348,154 @@ def master_function():
     )  # Contenido exclusivo para 'master'
 
 
+
+@app.route('/procesar_archivo', methods=['POST']) # Mantenemos POST para recibir el archivo
+def procesar_archivo():
+    if 'file1' not in request.files:
+        # Es mejor devolver un error JSON o un mensaje claro
+        return jsonify({'status': 'error', 'message': 'No se encontró el archivo en la solicitud.'}), 400
+
+    archivo = request.files['file1']
+
+    if archivo.filename == '':
+        return jsonify({'status': 'error', 'message': 'No se seleccionó ningún archivo.'}), 400
+
+    if archivo: #and archivo.filename.endswith('.xlsx'): # Puedes añadir validación de extensión
+        print(f"Archivo recibido: {archivo.filename}")
+
+        # Define la función generadora que Flask usará para el stream
+        def generate_stream():
+            # Pasamos el objeto 'archivo' (FileStorage) directamente
+            for message in procesar_fiscal_stream(archivo):
+                # Formato SSE: "data: <mensaje>\n\n"
+                yield f"data: {message}\n\n"
+                # Pequeña pausa para asegurar que el navegador reciba los eventos
+                time.sleep(0.01)
+            # Puedes enviar un evento especial para indicar el final si lo deseas
+            yield "event: end\ndata: Proceso finalizado.\n\n"
+
+        # Retorna una respuesta de tipo stream
+        return Response(stream_with_context(generate_stream()), mimetype='text/event-stream')
+    else:
+        # Mensaje si el archivo no es válido o no existe
+        return jsonify({'status': 'error', 'message': 'Archivo no válido o no proporcionado.'}), 400
+
+@app.route('/procesar_archivo_GDE', methods=['POST']) # Mantenemos POST para recibir el archivo
+def procesar_archivo_GDE():
+    if 'file-gde' not in request.files:
+        # Es mejor devolver un error JSON o un mensaje claro
+        return jsonify({'status': 'error', 'message': 'No se encontró el archivo en la solicitud.'}), 400
+
+    archivo = request.files['file-gde']
+
+    if archivo.filename == '':
+        return jsonify({'status': 'error', 'message': 'No se seleccionó ningún archivo.'}), 400
+
+    if archivo: #and archivo.filename.endswith('.xlsx'): # Puedes añadir validación de extensión
+        print(f"Archivo recibido: {archivo.filename}")
+
+        # Define la función generadora que Flask usará para el stream
+        def generate_stream():
+            # Pasamos el objeto 'archivo' (FileStorage) directamente
+            for message in procesar_fiscal_gde_stream(archivo):
+                # Formato SSE: "data: <mensaje>\n\n"
+                yield f"data: {message}\n\n"
+                # Pequeña pausa para asegurar que el navegador reciba los eventos
+                time.sleep(0.01)
+            # Puedes enviar un evento especial para indicar el final si lo deseas
+            yield "event: end\ndata: Proceso finalizado.\n\n"
+
+        # Retorna una respuesta de tipo stream
+        return Response(stream_with_context(generate_stream()), mimetype='text/event-stream')
+    else:
+        # Mensaje si el archivo no es válido o no existe
+        return jsonify({'status': 'error', 'message': 'Archivo no válido o no proporcionado.'}), 400
+
+
+@app.route('/exportar_archivo', methods=['POST'])
+def exportar_archivo():
+    try:
+        # Obtener fechas del formulario enviado por JavaScript
+        desde = request.form.get('fechaDesde')
+        hasta = request.form.get('fechaHasta')
+        # Validar que las fechas fueron recibidas
+        if not desde or not hasta:
+            return jsonify({'status': 'error', 'message': 'Fechas "Desde" y "Hasta" son requeridas.'}), 400
+
+        print(f"Recibida solicitud de exportación desde {desde} hasta {hasta}")
+
+        # Llamar a la función que ahora devuelve (buffer, filename)
+        file_buffer, filename = exportar_consulta_xls(desde, hasta)
+
+        print(f"Enviando archivo: {filename}")
+
+        # Enviar el archivo desde el buffer de memoria
+        return send_file(
+            file_buffer,
+            mimetype='application/vnd.ms-excel', # Mimetype correcto para .xls
+            as_attachment=True, # Indica al navegador que lo descargue
+            download_name=filename # Nombre que tendrá el archivo descargado
+        )
+
+    except ConnectionError as db_conn_err:
+         print(f"Error de conexión DB en exportar_archivo: {db_conn_err}")
+         return jsonify({'status': 'error', 'message': f'Error de base de datos: {db_conn_err}'}), 500
+    except ValueError as val_err: # Captura errores lanzados desde exportar_consulta_xls
+         print(f"Error de valor en exportar_archivo: {val_err}")
+         return jsonify({'status': 'error', 'message': f'Error durante la exportación: {val_err}'}), 500
+    except Exception as e:
+        print(f"Error inesperado en /exportar_archivo: {e}")
+        traceback.print_exc() # Imprime el stack trace completo en la consola del servidor
+        return jsonify({'status': 'error', 'message': 'Ocurrió un error interno al generar el archivo.'}), 500
+
+@app.route('/subir_defontana', methods=['POST'])
+def subir_defontana():
+    # Obtener datos del formulario
+    desde = request.form.get('fechaDesde')
+    hasta = request.form.get('fechaHasta')
+    tipoDte = request.form.get('tipoDte')
+
+    # Validar datos
+    if not desde or not hasta or not tipoDte:
+        # Para SSE, es mejor no devolver JSON aquí, el error se manejará en el stream
+        # o el cliente JS debería validar antes de llamar.
+        # Por simplicidad, dejaremos que la función stream maneje la validación inicial si es necesario,
+        # o podrías devolver un error 400 plano, pero el JS actual no lo manejaría bien.
+        # Lo ideal es validar en JS primero.
+        # Si la validación falla aquí, podríamos iniciar un stream que solo envíe el error.
+        def error_stream():
+            yield "data: Error: Faltan parámetros (Fechas o Tipo DTE).\n\n"
+            yield "event: end\ndata: Proceso terminado con error.\n\n"
+        return Response(stream_with_context(error_stream()), mimetype='text/event-stream', status=400)
+
+
+    print(f"Recibida solicitud de subida a Defontana desde {desde} hasta {hasta} para tipo {tipoDte}")
+
+    # Define la función generadora para el stream SSE
+    def generate_stream():
+        try:
+            # Llama a la función generadora que hace el trabajo real
+            for message in subir_a_defontana_por_fechas_stream(desde, hasta, tipoDte):
+                yield f"data: {message}\n\n"
+                time.sleep(0.01) # Pausa para el navegador
+            # Señal de finalización (opcional pero útil)
+            yield "event: end\ndata: Finalizado.\n\n"
+        except Exception as e:
+             # Captura errores inesperados *durante* la generación del stream
+             error_msg = f"Error inesperado en el servidor durante el stream: {e}"
+             print(error_msg)
+             traceback.print_exc()
+             yield f"data: Error Crítico: {error_msg}\n\n"
+             yield "event: end\ndata: Proceso terminado con error crítico.\n\n"
+
+
+    # Retorna la respuesta de tipo stream
+    return Response(stream_with_context(generate_stream()), mimetype='text/event-stream')
+
+
+
 if __name__ == '__main__':
-    app.run(debug=True)  # En producción, debug=False
+    app.run(debug=False, port=8000)  # En producción, debug=False
 
 ## Changelog
 # - Se agregó la función de cambiar contraseña.

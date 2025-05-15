@@ -1,0 +1,310 @@
+/* Reset básico & Fuente */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: "Roboto", sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+section{
+    display: grid;
+    min-height: 100dvh;
+    grid-template-rows: auto 1fr auto;
+}
+
+/* Fuente para encabezados */
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Roboto", sans-serif;
+}
+
+/* Box sizing */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* Contenido principal */
+.mainContent {
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 10px auto;
+    padding: 0 20px;
+    width: 100%;
+    flex-grow: 1;
+
+}
+
+/* Selector de secciones */
+.sectionSelectorContainer {
+    width: 150px;
+    flex-shrink: 0;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Botones de selección */
+.selectionButton {
+    all: unset;
+    display: block;
+    padding: 12px 20px;
+    margin: 0 10px;
+    text-align: center;
+    color: #333;
+    font-weight: 500;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    border: 1px solid transparent;
+    font-family: "Roboto", sans-serif;
+}
+
+.selectionButton:hover {
+    background-color: #e9ecef;
+    color: #000;
+}
+
+.selectionButton.active {
+    background-color: #b34c13;
+    color: #fff;
+    border-color: #a34512;
+    font-weight: bold;
+}
+
+/* Secciones de contenido */
+.content-section {
+    flex-grow: 1;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: none;
+}
+
+.content-section h3 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    color: #b34c13;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* Formularios */
+.content-section form .mb-3 {
+    margin-bottom: 1.5rem !important;
+}
+
+.content-section form .btn-primary {
+    background-color: #b34c13;
+    border-color: #a34512;
+    padding: 10px 20px;
+    color: #fff;
+    font-family: "Roboto", sans-serif;
+}
+
+.content-section form .btn-primary:hover {
+    background-color: #a34512;
+    border-color: #8f3b10;
+    color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .mainContent {
+        flex-direction: column;
+        gap: 20px;
+        padding: 0 15px;
+        margin-top: 10px;
+        height: auto;
+    }
+
+    .sectionSelectorContainer {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 10px 0;
+        justify-content: flex-start;
+        gap: 5px;
+    }
+
+    .selectionButton {
+        flex: 0 0 auto;
+        padding: 8px 15px;
+        margin: 0 5px;
+        white-space: nowrap;
+    }
+
+    .content-section {
+        padding: 20px;
+    }
+}
+
+/* Loader */
+.loader-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.loader {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #b34c13;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Notificaciones */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 0%;
+    transform: translateX(0%);
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    z-index: 1001;
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 250px;
+    max-width: 400px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    font-family: "Roboto", sans-serif;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateX(-20%);
+}
+
+.notification.success {
+    background-color: #4CAF50;
+}
+
+.notification.error {
+    background-color: #f44336;
+}
+
+.notification i {
+    font-size: 20px;
+}
+
+.notification-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.notification-content strong {
+    font-size: 16px;
+}
+
+.notification-content span {
+    font-size: 14px;
+}
+
+/* Progreso y mensajes */
+#progress-container {
+    width: 90%;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-top: 15px;
+    background-color: #f9f9f9;
+    font-size: 0.9em;
+    white-space: pre-wrap;
+}
+
+.error-message {
+    color: red;
+    font-weight: bold;
+}
+
+.success-message {
+    color: green;
+    font-weight: bold;
+}
+
+/* Navbar */
+.navbar {
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-family: "Roboto", sans-serif;
+}
+.navbar-brand, .nav-link {
+    color: #333 !important;
+}
+.navbar-brand:hover, .nav-link:hover {
+    color: #b34c13 !important;
+}
+
+/* Footer */
+.footer {
+    background-color: #ffffff;
+    color: #333;
+    padding: 20px 0;
+    text-align: center;
+    margin-top: auto;
+    font-family: "Roboto", sans-serif;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Flash Messages */
+.messages {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    font-family: "Roboto", sans-serif;
+}
+.messages li {
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: .25rem;
+}
+.messages .alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+.messages .alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+.messages .alert-warning {
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+    color: #856404;
+}
+.messages .alert-info {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+}

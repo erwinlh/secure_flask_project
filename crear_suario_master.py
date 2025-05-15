@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 # al mismo nivel que functions.py.
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__))))
 
-import functions
+import utils.auth as auth 
 
 # Cargar variables de entorno (para la conexión a la DB)
 load_dotenv()
@@ -43,7 +43,7 @@ def crear_master_user():
 
     nota_secreta = input("Ingrese una nota secreta (opcional, presione Enter para omitir): ").strip()
 
-    conn = functions.connect()
+    conn = auth.connect()
     if conn:
         try:
             cursor = conn.cursor()
@@ -54,14 +54,14 @@ def crear_master_user():
                 return
 
             # Hashear la contraseña
-            hashed_password = functions.hash_password(password)
+            hashed_password = auth.hash_password(password)
 
             # Encriptar la nota secreta si existe
             encrypted_note = None
             if nota_secreta:
-                fernet_cipher = functions.get_fernet_key_from_cipher_pass()
+                fernet_cipher = auth.get_fernet_key_from_cipher_pass()
                 if fernet_cipher:
-                    encrypted_note = functions.encrypt_data(nota_secreta, fernet_cipher)
+                    encrypted_note = auth.encrypt_data(nota_secreta, fernet_cipher)
                 else:
                     print("Advertencia: No se pudo obtener la clave Fernet, la nota secreta NO se encriptará.")
 
