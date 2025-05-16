@@ -147,7 +147,7 @@ def salvarDataPdf(data): #funcion que se hizo para los dte que ya existian en la
     insertar_resultados(conexion, queryFiscalPDF)
 
 
-######################## revisa estas dos funciones
+
 def recuperar_xml(payload): #devuelve un string en base 64
     """
     Realiza un POST a http://{apiserver}/api/Core.svc/core/RecoverXML_V2
@@ -277,6 +277,8 @@ def get_auth_headers():
     return {
         "Authorization": f"Bearer {os.getenv('token')}"
     } if access_token else {}
+
+
 
 def consultar_empresa():
     """
@@ -788,88 +790,161 @@ def guardar_venta(payload):
 
 
 #funciones de la API de Defontana para Vouchers Contables
-def procesar_arqueo_opera(filename): 
-    mensajes = []
-    resultado = None
-    filepath = filename
-    #print(filepath)
-    try:
-        workbook = openpyxl.load_workbook(filepath)
-        #print(workbook)
-        conexion = connect()
+def procesar_arqueo_opera(filename):
+    """
+    Procesa un archivo Excel de arqueo, lee sus datos y los inserta en una base de datos
+    si no existen previamente.
+    
+    Args:
+        filename (str): Ruta al archivo Excel a procesar
         
-        if workbook:
-            # Aquí puedes realizar operaciones con el workbook, como leer hojas, celdas, etc.
-            print(f"Archivo {filepath} Excel abierto exitosamente.")
-            mensajes.append(f"Archivo {filepath} abierto y procesandose, por favor espere...")
-            # Por ejemplo, para obtener los nombres de las hojas:
-            hojas = workbook.sheetnames
-            print("Hojas en el archivo:", hojas)
-
-            hoja = workbook.active
-
-            for fila in hoja.iter_rows(min_row=3):
-                # Comenzar desde la fila 3
-                valores = [celda.value for celda in fila]
-
-                trx_code = "NULL" if valores[0] is None else valores[0]
-                trx_date = "NULL" if valores[1] is None else valores[1]
-                pname = "NULL" if valores[2] is None else valores[2]
-                room = "NULL" if valores[5] is None else valores[5]
-                remark = "NULL" if valores[6] is None else valores[6]
-                reference = "NULL" if valores[7] is None else valores[7]
-                amt = "NULL" if valores[8] is None else valores[8]
-                confirmation_no = "NULL" if valores[9] is None else valores[9]
-                bill_no = "NULL" if valores[10] is None else valores[10]
-                folio_type = "NULL" if valores[11] is None else valores[11]
-                fiscal_bill_no = "NULL" if valores[12] is None else valores[12]   
-                cashier_id = "NULL" if valores[13] is None else valores[13]
-                app_user = "NULL" if valores[14] is None else valores[14]
-                index_column = str(valores[0])+"_"+str(valores[1])+"_"+str(valores[2])+"_"+str(valores[8])+"_"+str(valores[14])
-
-                #evaluate if index_column already exists
-                if valores[1] is not None:
-                    if valores[1] != 'TRX_DATE':
-                        query = f"SELECT * FROM arqueo WHERE index_column = '{index_column}'"
-                        #print(query)
-                        try:
-                            print(colored(f"{ASK_SYMBOL} Consultando si existe el registro en la base de datos...", "white"))
-                            ejecutar_consulta(conexion, query)
-                            resultado = ejecutar_consulta(conexion, query)
-                            if resultado != []:
-                                print(colored(f" {WARNING_SYMBOL} El registro ya existe en la base de datos, no se insertará nuevamente.", "yellow"))
-                            elif resultado == []:
-                                # Si no existe, inserta el nuevo registro
-                                query = f"INSERT INTO arqueo (`trx_code`,`trx_date`,`pname`,`room`,`remark`,`reference`,`amt`,`confirmation_no`,`bill_no`,`folio_type`,`fiscal_bill_no`,`cashier_id`,`app_user`,`index_column`) VALUES ({trx_code}, \'{trx_date}\', \'{pname}\', {room}, \'{remark}\', \'{reference}\', {amt}, {confirmation_no}, {bill_no}, {folio_type}, {fiscal_bill_no}, {cashier_id}, \'{app_user}\', \'{index_column}\')"
-                                try:
-                                    insertar_resultados(conexion, query)
-                                    #print(f"registro insertado correctamente..")
-                                    #time.sleep(0.5)
-                                except Exception as e:
-                                    print(f"Error al insertar el registro: {e}")
-                        except Exception as e:
-                            #print(f"Error al consultar el registro: {e}")
-                            print(colored(f" {ERROR_SYMBOL} Error al consultar el registro: {e}", "red"))
-                            resultado = None
-
-                        #print(resultado)
-                        
-            # No olvides cerrar el archivo cuando hayas terminado
-            workbook.close()
-        else:
-            print(colored(f" {ERROR_SYMBOL} No se pudo abrir el archivo Excel.", "red"))
+    Returns:
+        list: Mensajes informativos del proceso
+        dict: Estadísticas del procesamiento (registros procesados, insertados, duplicados, errores)
+    """
+    mensajes = []
+    estadisticas = {
+        "procesados": 0,
+        "insertados": 0,
+        "duplicados": 0,
+        "errores": 0
+    }
+    
+    try:
+        # Registrar inicio del proceso
+        mensajes.append(f"Iniciando procesamiento del archivo: {filename}")
+        print(f"Iniciando procesamiento del archivo: {filename}")
+        
+        # Abrir archivo Excel
+        try:
+            workbook = openpyxl.load_workbook(filename, read_only=True)  # Modo read_only para archivos grandes
+        except Exception as e:
+            mensaje_error = f"Error al abrir el archivo Excel: {e}"
+            mensajes.append(mensaje_error)
+            print(colored(f" {ERROR_SYMBOL} {mensaje_error}", "red"))
+            return mensajes, None
             
+        # Conectar a la base de datos
+        try:
+            conexion = connect()
+        except Exception as e:
+            mensaje_error = f"Error de conexión a la base de datos: {e}"
+            mensajes.append(mensaje_error)
+            print(colored(f" {ERROR_SYMBOL} {mensaje_error}", "red"))
+            workbook.close()
+            return mensajes, None
+            
+        # Obtener hoja activa
+        hoja = workbook.active
+        mensajes.append(f"Archivo abierto correctamente. Procesando datos...")
+        print(colored(f"Archivo abierto correctamente. Procesando datos...", "white"))
+        
+        # Procesar filas del archivo
+        for i, fila in enumerate(hoja.iter_rows(min_row=3), start=3):
+            try:
+                # Obtener valores de la fila
+                valores = [celda.value for celda in fila]
+                
+                # Verificar si la fila está vacía o es un encabezado
+                if len(valores) < 15 or valores[1] == 'TRX_DATE' or valores[1] is None:
+                    continue
+                    
+                estadisticas["procesados"] += 1
+                
+                # Crear el índice único
+                index_column = f"{valores[0]}_{valores[1]}_{valores[2]}_{valores[8]}_{valores[14]}"
+                
+                # Normalizar valores
+                trx_code = valores[0]
+                trx_date = valores[1]
+                pname = valores[2] or ""
+                room = valores[5]
+                remark = valores[6] or ""
+                reference = valores[7] or ""
+                amt = valores[8]
+                confirmation_no = valores[9]
+                bill_no = valores[10]
+                folio_type = valores[11]
+                fiscal_bill_no = valores[12]
+                cashier_id = valores[13]
+                app_user = valores[14] or ""
+                
+                # Verificar si el registro ya existe
+                print(colored(f"{ASK_SYMBOL} Consultando si existe el registro en la base de datos...", "white"))
+                query = f"SELECT * FROM arqueo WHERE index_column = '{index_column}'"
+                resultado = ejecutar_consulta(conexion, query)
+                
+                if resultado:
+                    estadisticas["duplicados"] += 1
+                    print(colored(f" {WARNING_SYMBOL} El registro ya existe en la base de datos, no se insertará nuevamente.", "yellow"))
+                    continue
+                
+                # Preparar query de inserción más segura
+                query = """
+                    INSERT INTO arqueo (
+                        trx_code, trx_date, pname, room, remark, reference, amt,
+                        confirmation_no, bill_no, folio_type, fiscal_bill_no,
+                        cashier_id, app_user, index_column
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """
+                
+                # Insertar el registro usando parámetros en lugar de concatenación
+                valores_insercion = (
+                    trx_code, trx_date, pname, room, remark, reference, amt,
+                    confirmation_no, bill_no, folio_type, fiscal_bill_no,
+                    cashier_id, app_user, index_column
+                )
+                
+                insertar_resultados_seguros(conexion, query, valores_insercion)
+                estadisticas["insertados"] += 1
+                
+            except Exception as e:
+                estadisticas["errores"] += 1
+                mensaje_error = f"Error procesando fila {i}: {e}"
+                mensajes.append(mensaje_error)
+                print(colored(f" {ERROR_SYMBOL} {mensaje_error}", "red"))
+                
+        # Resumen de procesamiento
+        mensaje_resumen = (f"Procesamiento completado: {estadisticas['procesados']} registros procesados, "
+                            f"{estadisticas['insertados']} insertados, {estadisticas['duplicados']} duplicados, "
+                            f"{estadisticas['errores']} errores.")
+        mensajes.append(mensaje_resumen)
+        print(colored(mensaje_resumen, "green"))
+        
+        # Cerrar recursos
+        workbook.close()
         conexion.close()
-
-        return workbook
-
-
+        
+        return mensajes, estadisticas
+        
     except FileNotFoundError:
-        print(f"Error: El archivo no se encontró en la ruta: {filepath}")
-        return None
+        mensaje_error = f"Error: Archivo no encontrado: {filename}"
+        mensajes.append(mensaje_error)
+        print(colored(f" {ERROR_SYMBOL} {mensaje_error}", "red"))
+        return mensajes, None
+        
     except Exception as e:
-        print(f"Ocurrió un error al abrir el archivo: {e}")
-    return mensajes
+        mensaje_error = f"Error general: {e}"
+        mensajes.append(mensaje_error)
+        print(colored(f" {ERROR_SYMBOL} {mensaje_error}", "red"))
+        return mensajes, None
+
+# Esta función es necesaria para reemplazar el insertar_resultados actual
+# con una versión que use consultas parametrizadas
+def insertar_resultados_seguros(conexion, query, valores):
+    """
+    Inserta registros en la base de datos de manera segura usando consultas parametrizadas.
+    
+    Args:
+        conexion: Conexión a la base de datos
+        query: Consulta SQL con placeholders (%s)
+        valores: Tupla con los valores a insertar
+    """
+    cursor = conexion.cursor()
+    cursor.execute(query, valores)
+    conexion.commit()
+    cursor.close()
+    return True
 
 def consultar_voucher(type, number, fiscal_year):
     payload = {

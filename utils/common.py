@@ -291,3 +291,17 @@ def insertar_resultados(conexion, query):
     finally:
         mycursor.close()
 
+def insertar_resultados_seguros(conexion, query, valores):
+    """
+    Inserta registros en la base de datos de manera segura usando consultas parametrizadas.
+    
+    Args:
+        conexion: Conexión a la base de datos
+        query: Consulta SQL con placeholders (%s)
+        valores: Tupla con los valores a insertar
+    """
+    cursor = conexion.cursor()
+    cursor.execute(query, valores)
+    conexion.commit()
+    cursor.close()
+    return True
