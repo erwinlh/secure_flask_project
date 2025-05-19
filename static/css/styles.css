@@ -40,6 +40,14 @@ h1, h2, h3, h4, h5, h6 {
 
 }
 
+section {
+    background-color: whitesmoke;
+}
+
+main {
+    background-color: white;
+}
+
 /* Selector de secciones */
 .sectionSelectorContainer {
     width: 150px;
@@ -84,7 +92,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Secciones de contenido */
 .content-section {
     flex-grow: 1;
-    background-color: #fff;
+    background-color: #f2f2f2;
     padding: 30px;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -267,8 +275,8 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Footer */
 .footer {
-    background-color: #ffffff;
-    color: #333;
+    background-color: gray;
+    color: whitesmoke;
     padding: 20px 0;
     text-align: center;
     margin-top: auto;
