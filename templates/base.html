@@ -31,8 +31,15 @@
                         <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('intermedio') }}">Intermedio</a>
+                        <a class="nav-link" href="{{ url_for('marinaDunas') }}">Marina Dunas</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('marinaHoteles') }}">Marina Hoteles</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('revicentro') }}">Revicentro</a>
+                    </li>
+                    
                     {% if session.get('nivel') in ['admin', 'master'] %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('avanzado') }}">Avanzado</a>

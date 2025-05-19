@@ -324,12 +324,26 @@ def admin_delete_user(user_id):
 
 
 # Rutas de ejemplo para diferentes niveles (para demostración)
-@app.route('/intermedio')
+@app.route('/marinaDunas')
 @requiere_nivel(['user', 'admin', 'master'])
-def intermedio():
+def marinaDunas():
     return render_template(
-        'intermedio.html'
+        'marinaDunas.html'
     )  # Contenido exclusivo para usuarios con nivel 'user' o superior
+
+@app.route('/marinaHoteles')
+@requiere_nivel(['user', 'admin', 'master'])
+def marinaHoteles():
+    return render_template(
+        'marinaHoteles.html'
+    )
+    
+@app.route('/revicentro')
+@requiere_nivel(['user', 'admin', 'master'])
+def revicentro():
+    return render_template(
+        'revicentro.html'
+    )
 
 
 @app.route('/avanzado')

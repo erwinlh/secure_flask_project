@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block title %}Intermedio{% endblock %}
+{% block content %}
+<div class="mainContent"> <!-- Keep w3-main if using W3 sidebar push effect -->
+  <div class="sectionSelectorContainer">
+    <!-- Buttons remain the same -->
+    <button id="button1" class="selectionButton" onclick="showContent('content1')">Importar Fiscales</button>
+    <button id="button5" class="selectionButton" onclick="showContent('content5')">Importar Fiscales Gde</button>
+    <button id="button2" class="selectionButton" onclick="showContent('content2')">DTEs a Defontana via Excel</button>
+    <button id="button3" class="selectionButton" onclick="showContent('content3')">DTEs a Defontana via API</button>
+    <!-- <button id="button4" class="selectionButton" onclick="showContent('content4')">etapa 4</button> -->
+  </div>
+  <div class="container"> <!-- Using Bootstrap container for content alignment -->
+    <!-- Section 1 -->
+    <div id="content1" class="content-section w3-container">
+      <h3>Procesar Fiscales Oracle[...].xlsx </h3>
+      <form id="upload-form" method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label for="file1Input" class="form-label">Selecciona el Fichero XLSX que haz descargado desde Oracle R&A
+            para procesarlo...</label>
+          <p class="text-muted">Si no lo haz hecho, puedes descargarlo desde
+            <a href="https://ocacs.ocs.oraclecloud.com/wwlijt444hjxclgvihri/analytics/saw.dll?bipublisherEntry&Action=open&itemType=.xdo&bipPath=%2FRMAHTLS%2F01-Fiscales%20v3.1%20Rep.xdo&path=%2Fshared%2FRMAHTLS%2F01-Fiscales%20v3.1%20Rep.xdo"
+              target="_blank">R&A Reporte Fiscales V3.1</a>
+          </p>
+          <input class="form-control" type="file" name="file1" id="file1Input" accept=".xlsx" required>
+          <!-- Added accept attribute -->
+        </div>
+
+        <!-- Flex container for Button and Progress Bar -->
+        <div class="d-flex align-items-center mb-3">
+          <button type="submit" class="btn btn-primary">Procesar</button>
+          <!-- Bootstrap Progress Bar -->
+          <div class="progress flex-grow-1 ms-3" id="upload-progress-bar-container"
+            style="height: 38px; display: none;"> <!-- Initially hidden, ms-3 for margin -->
+            <div class="progress-bar progress-bar-striped progress-bar-animated" id="upload-progress-bar"
+              role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+          </div>
+        </div>
+        <!-- Removed the <br><br> tags -->
+
+        <!-- Progress Text Area -->
+        <div id="progress-container"
+          style="max-height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-top: 10px; background-color: #f9f9f9;">
+          Esperando archivo...
+        </div>
+      </form>
+    </div>
+
+    <!-- Section 5 -->
+
+    <div id="content5" class="content-section w3-container">
+      <h3>Procesar Fiscales GDE[...].xls </h3>
+      <form id="upload-formgde" method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label for="file-gde" class="form-label">Selecciona el Fichero XLS que haz descargado desde GDE
+            para procesarlo...</label>
+          <p class="text-muted">Si no lo haz hecho, puedes descargarlo desde
+            <a href="https://www.gdexpress.cl/Document?index=Customers" target="_blank">GDE Express</a>
+          </p>
+          <input class="form-control" type="file" name="file-gde" id="file-gde" accept=".xls" required>
+          <!-- Added accept attribute -->
+        </div>
+
+        <!-- Flex container for Button and Progress Bar -->
+        <div class="d-flex align-items-center mb-3">
+          <button type="submit" class="btn btn-primary">Procesar</button>
+          <!-- Bootstrap Progress Bar -->
+          <div class="progress flex-grow-1 ms-3" id="upload-progress-bar-containergde"
+            style="height: 38px; display: none;"> <!-- Initially hidden, ms-3 for margin -->
+            <div class="progress-bar progress-bar-striped progress-bar-animated" id="upload-progress-bargde"
+              role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+          </div>
+        </div>
+        <!-- Removed the <br><br> tags -->
+
+        <!-- Progress Text Area -->
+        <div id="progress-containergde"
+          style="max-height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-top: 10px; background-color: #f9f9f9;">
+          Esperando archivo...
+        </div>
+      </form>
+    </div>
+
+    <!-- Section 2 -->
+    <div id="content2" class="content-section w3-container">
+      <h3>DTEs a Defontana via Excel</h3>
+      <p>Genera un archivo de Excel que se puede utilizar en defontana para subir las ventas.
+        Selecciona el rango de fechas para buscar los documentos fiscales a exportar.</p>
+
+      <!-- Formulario para seleccionar fechas -->
+      <form id="export-form"> <!-- Puedes darle un ID si necesitas interactuar con él desde JS -->
+        <div class="row g-3 align-items-end"> <!-- Usa row y g-3 para espaciado y alineación -->
+
+          <!-- Date Picker Desde -->
+          <div class="col-md-4"> <!-- Ajusta el tamaño de columna según necesites -->
+            <label for="fechaDesde" class="form-label">Desde:</label>
+            <input type="date" class="form-control" id="fechaDesde" name="fechaDesde" required>
+          </div>
+
+          <!-- Date Picker Hasta -->
+          <div class="col-md-4"> <!-- Ajusta el tamaño de columna según necesites -->
+            <label for="fechaHasta" class="form-label">Hasta:</label>
+            <input type="date" class="form-control" id="fechaHasta" name="fechaHasta" required>
+          </div>
+
+          <!-- Botón Buscar -->
+          <div class="col-md-auto"> <!-- Se ajusta al contenido -->
+            <!-- Usamos type="button" si la búsqueda se manejará con JS,
+                         o type="submit" si el form enviará los datos a una ruta -->
+            <button type="button" class="btn btn-primary" id="buscarExportarBtn">Buscar</button>
+          </div>
+
+        </div> <!-- Fin de .row -->
+      </form>
+
+      <!-- Aquí podrías añadir un área para mostrar los resultados de la búsqueda -->
+      <div id="resultadosExportar" class="mt-4">
+        results
+        <!-- Los resultados se cargarán aquí (opcional) -->
+      </div>
+
+    </div>
+    <!-- Fin Section 2 -->
+
+    <!-- Section 3 -->
+    <div id="content3" class="content-section w3-container"> <!-- Removed inline style -->
+      <h3>DTEs a Defontana via API</h3>
+      <p> Proceso automatizado para subir las ventas a Defontana via API
+        Selecciona el rango de fechas para procesar.</p>
+
+      <!-- Formulario para seleccionar fechas -->
+      <form id="send-form"> <!-- Puedes darle un ID si necesitas interactuar con él desde JS -->
+        <div class="row g-3 align-items-end"> <!-- Usa row y g-3 para espaciado y alineación -->
+
+          <!-- Date Picker Desde -->
+          <div class="col-md-4"> <!-- Ajusta el tamaño de columna según necesites -->
+            <label for="fechaDesdeEnviar" class="form-label">Desde:</label>
+            <input type="date" class="form-control" id="fechaDesdeEnviar" name="fechaDesdeEnviar" required>
+          </div>
+
+          <!-- Date Picker Hasta -->
+          <div class="col-md-4"> <!-- Ajusta el tamaño de columna según necesites -->
+            <label for="fechaHastaEnviar" class="form-label">Hasta:</label>
+            <input type="date" class="form-control" id="fechaHastaEnviar" name="fechaHastaEnviar" required>
+          </div>
+          <div class="col-md-4"> <!-- Ajusta el tamaño de columna según necesites -->
+            <label for="tipoDteInput" class="form-label">Tipo Dte:</label>
+            <input type="" class="form-control" id="tipoDteInput" name="tipoDte" placeholder="33 o 39" required>
+          </div>
+
+          <!-- Botón Buscar -->
+          <div class="col-md-auto"> <!-- Se ajusta al contenido -->
+            <!-- Usamos type="button" si la búsqueda se manejará con JS,
+                        o type="submit" si el form enviará los datos a una ruta -->
+            <button type="button" class="btn btn-primary" id="enviarBtn">Enviar</button>
+          </div>
+
+        </div> <!-- Fin de .row -->
+      </form>
+      <div id="resultadosEnviar" class="mt-4">
+        <!-- Mensaje inicial o final -->
+      </div>
+
+      <!-- *** NUEVO: Div para mostrar los mensajes del stream *** -->
+      <div id="progress-container-enviar" class="mt-3"
+        style="max-height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; background-color: #f9f9f9; min-height: 50px;">
+        Esperando inicio del proceso...
+      </div>
+    </div>
+    <!-- Section 4 -->
+    <div id="content4" class="content-section w3-container"> <!-- Removed inline style -->
+      <h3>Sección 4</h3>
+      <!-- Removed the form as it seemed unused -->
+      <p>Contenido de la sección 4.</p>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
