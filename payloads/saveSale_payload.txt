@@ -1,0 +1,227 @@
+{
+
+  "documentType": "string",  // OBLIGATORIO, CORRESPONDE AL TIPO DE DOCUMENTO
+
+  "firstFolio": 0,             // OBLIGATORIO, CORRESPONDE AL NÚMERO DE DOCUMENTO (SI SE DEJA EN 0, TOMARÁ EL CORRELATIVO)
+
+  "lastFolio": 0,          // OBLIGATORIO, CORRESPONDE AL NÚMERO DE DOCUMENTO (SI SE DEJA EN 0, TOMARÁ EL CORRELATIVO)
+
+  "externalDocumentID": "string", // SE PUEDE ENVIAR VACÍO, ID EXTERNA PARA IDENTIFICAR EL DOCUMENTO EN CASO DE QUE SE NECESITE
+
+  "emissionDate": {          // OBLIGATORIA, FECHA DE EMISIÓN
+
+    "day": 0,
+
+    "month": 0,
+
+    "year": 0
+
+  },
+
+  "firstFeePaid": {     // OBLIGATORIA, FECHA DEL PRIMER PAG
+
+    "day": 0,
+
+    "month": 0,
+
+    "year": 0
+
+  },
+
+  "clientFile": "string",     //  OBLIGATORIA, ID DE FICHA DEL CLIENTE
+
+  "contactIndex": "string",   //  OBLIGATORIA, DIRECCIÓN CLIENTE
+
+  "paymentCondition": "string",  // OBLIGATORIA, CONDICIÓN DE PAGO
+
+  "sellerFileId": "string",   // ID DEL VENDEDOR, OBLIGATORIO
+
+  "clientAnalysis": {          // ANALISIS DE CUENTA CONTABLE POR ASIENTO DEL CLIENTE
+
+    "accountNumber": "string",  // NÚMERO DE CUENTA CONTABLE DEL ASIENTO POR CLIENTES
+
+    "businessCenter": "string", // CENTRO DE NEGOCIOS EN CASO DE QUE LA CUENTA ESTÉ CONFIGURADA PARA USAR CENTRO DE NEGOCIOS.
+
+    "classifier01": "string", // CLASIFICADOR1 EN CASO DE QUE LA CUENTA ESTÉ CONFIGURADA PARA USAR CLASIFICADORES.
+
+    "classifier02": "string" // CLASIFICADOR2 EN CASO DE QUE LA CUENTA ESTÉ CONFIGURADA PARA USAR CLASIFICADORES.
+
+  },
+
+  "billingCoin": "string",    // OBLIGATORIO, ID DE MONEDA A UTILIZAR
+
+  "billingRate": 0,     // OBLIGATORIDE CAMBIO DE MONEDA
+
+  "shopId": "string",   // ID DE LOCAL, OBLIGATORIO
+
+  "priceList": "string", // LISTA DE PRECIOS, OBLIGATORIA
+
+  "giro": "string",    // OBLIGATORIO, GIRO DEL DOCUMENTO
+
+  "district": "string",  // COMUNA, OBLIGATORIA
+
+  "city": "string",   // OBLIGATORIA, CIUDAD
+
+  "contact": 0,  // ENVIAR COMO -1
+
+  "attachedDocuments": [   // SE PUEDE DEJAR VACÍO EN CASO DE QUE NO EXISTAN DOCUMENTOS ASOCIADOS (ENVIAR COMO []))
+
+    {
+
+      "date": {
+
+        "day": 0,
+
+        "month": 0,
+
+        "year": 0
+
+      },
+
+      "documentTypeId": "string",   || tipo de documento codigo
+
+      "folio": "string",    || folio
+
+      "reason": "string"    || comentario de documento
+
+    }
+
+  ],
+
+  "storage": {
+
+    "code": "string",   // CODIGO DE BODEGA (OBLIGATORIO EN CASO DE QUE SE MUEVA STOCK)
+
+    "motive": "string", // MOTIVO DE MOVIMIENTO DE STOCK (OBLIGATORIO EN CASO DE QUE SE MUEVA STOCK)
+
+    "storageAnalysis": {  // ANALISIS POR CUENTA CONTABLE DE INVENTARIO
+
+      "accountNumber": "string",
+
+      "businessCenter": "string",
+
+      "classifier01": "string",
+
+      "classifier02": "string"
+
+    }
+
+  },
+
+  "details": [   // OBLIGATORIO, DETALLES DE LA GUÍA DE DESPACHO.
+
+    {
+
+      "type": "string", // TIPO DE PRODUCTO (PUEDE SER "A" SI ES UN ARTICULO O "S" SI ES UN SERVICIO) (OBLIGATORIA)
+
+      "isExempt": true, // SE DEFINE SI ES EXENTA O NO (OBLIGATORIO)
+
+      "code": "string", // CODIGO DEL PRODUCTO
+
+      "count": 0,  // CANTIDAD
+
+      "productName": "string", // NOMBRE DEL PRODUCTO
+
+      "productNameBarCode": "string", // CODIGO DE BARRAS DEL PRODUCTO
+
+      "price": 0, // PRECIO
+
+      "discount": { // DESCUENTOS POR LINEA DE DETALLE EN CASO DE QUE EXISTAN (EN CASO DE QUE NO EXISTAN, ENVIAR AMBOS DATOS COMO 0)
+
+        "type": 0,
+
+        "value": 0
+
+      },
+
+      "unit": "string",  // UNIDAD DEL PRODUCTO
+
+      "analysis": {  // ANALISIS DE CUENTA CONTABLE POR ASIENTO DE VENTAS
+
+        "accountNumber": "string",
+
+        "businessCenter": "string",
+
+        "classifier01": "string",
+
+        "classifier02": "string"
+
+      },
+
+      "useBatch": true,  // EN CASO DE USAR LOTES, SE ENVÍA COMO TRUE, SINO FALSE
+
+      "batchInfo": [  // EN CASO DE NO USAR LOTES, ENVIAR COMO UN ARREGLO VACÍO []
+
+        {
+
+          "amount": 0,
+
+          "batchNumber": "string"
+
+        }
+
+      ]
+
+    }
+
+  ],
+
+  "saleTaxes": [  // OBLIGATORIO, ANALISIS DE CUENTA CONTABLE POR ASIENTO DE IMPUESTOS
+
+    {
+
+      "code": "string", // CODIGO DEL IMPUESTO
+
+      "value": 0, // VALOR DEL IMPUESTO
+
+      "taxeAnalysis": {
+
+        "accountNumber": "string",
+
+        "businessCenter": "string",
+
+        "classifier01": "string",
+
+        "classifier02": "string"
+
+      }
+
+    }
+
+  ],
+
+  "ventaRecDesGlobal": [  // OPCIONAL, DESCUENTOS GLOBALES, EN CASO DE NO USAR ENVIAR COMO UN ARREGLO VACÍO []
+
+    {
+
+      "amount": 0,
+
+      "modifierClass": "string",
+
+      "name": "string",
+
+      "percentage": 0,
+
+      "value": 0
+
+    }
+
+  ],
+
+  "gloss": "string",  // GLOSA DEL DOCUMENTO
+
+  "customFields": [ // OPCIONAL, CAMPOS PERSONALIZABLES, EN CASO DE NO USAR ENVIAR COMO UN ARREGLO VACÍO []
+
+    {
+
+      "name": "string",
+
+      "value": "string"
+
+    }
+
+  ],
+
+  "isTransferDocument": true  // DEFINE SI SERÁ UN DOCUMENTO DE TRASPASO O NO (SI ES FALSE SE ENVÍA AL SII, SI ES TRUE NO SE ENVÍA AL SII).
+
+}

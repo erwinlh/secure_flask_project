@@ -116,8 +116,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Optional: Check file type
             const fileName = fileInput.files[0].name;
             if (!fileName.toLowerCase().endsWith('.xlsx')) {
-                 showNotification('Error', 'Por favor, selecciona un archivo .xlsx.', 'error');
-                 return;
+                showNotification('Error', 'Por favor, selecciona un archivo .xlsx.', 'error');
+                return;
             }
 
 
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (!response.ok) {
                     // ... (error handling as before) ...
-                    appendProgress(errorMsg, true,"", "oracle");
+                    appendProgress(errorMsg, true, "", "oracle");
                     showNotification('Error', errorMsg, 'error');
                     // Style progress bar on error
                     progressBar.classList.add('bg-danger');
@@ -155,9 +155,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (!response.body) {
                     // ... (error handling as before) ...
-                    appendProgress("Error: La respuesta del servidor no tiene cuerpo...", true,"", "oracle");
+                    appendProgress("Error: La respuesta del servidor no tiene cuerpo...", true, "", "oracle");
                     showNotification('Error', "Respuesta inválida del servidor.", 'error');
-                     // Style progress bar on error
+                    // Style progress bar on error
                     progressBar.classList.add('bg-danger');
                     progressBar.classList.remove('progress-bar-animated');
                     progressBar.textContent = 'Error';
@@ -175,12 +175,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.log("Stream finalizado por el servidor.");
                         // Process remaining buffer
                         if (buffer.trim()) {
-                             const lines = buffer.split('\n\n');
-                             lines.forEach(line => {
+                            const lines = buffer.split('\n\n');
+                            lines.forEach(line => {
                                 if (line.startsWith('data:')) {
                                     const message = line.substring(5).trim();
                                     if (message) {
-                                        appendProgress(message,false,"", "oracle"); // Append final text messages
+                                        appendProgress(message, false, "", "oracle"); // Append final text messages
                                         // Potentially update progress bar based on final message
                                         if (message.toLowerCase().includes("completado") || message.toLowerCase().includes("finalizado")) {
                                             progressBar.style.width = '100%';
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                         }
                                     }
                                 }
-                             });
+                            });
                         }
                         // Check if success notification was already shown by final message
                         const lastMessage = progressContainer.lastChild ? progressContainer.lastChild.textContent : '';
@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (messagePart.startsWith('data:')) {
                             const message = messagePart.substring(5, messagePart.length - 2).trim();
                             if (message) {
-                                appendProgress(message,false,"", "oracle"); // Append text message to the text area
+                                appendProgress(message, false, "", "oracle"); // Append text message to the text area
 
                                 // --- Update Progress Bar based on message content ---
                                 const progressMatch = message.match(/Procesando fila (\d+)\/(\d+)/);
@@ -240,9 +240,9 @@ document.addEventListener('DOMContentLoaded', () => {
                                     progressBar.classList.add('bg-success'); // Optional: Green color on success
                                     // Notification is handled after loop finishes or by final message check
                                 } else if (message.toLowerCase().includes("error")) {
-                                     progressBar.classList.add('bg-danger');
-                                     progressBar.classList.remove('progress-bar-animated');
-                                     progressBar.textContent = 'Error';
+                                    progressBar.classList.add('bg-danger');
+                                    progressBar.classList.remove('progress-bar-animated');
+                                    progressBar.textContent = 'Error';
                                 }
                                 // --- End Progress Bar Update ---
                             }
@@ -252,15 +252,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         boundary = buffer.indexOf('\n\n');
                     }
                 } // End while loop
-                                showNotification('Éxito', 'Proceso de envío a Defontana completado.', 'success');
+                showNotification('Éxito', 'Proceso de envío a Defontana completado.', 'success');
 
 
             } catch (error) {
                 console.error('Error durante el fetch o la lectura del stream:', error);
                 const errorText = `Error de conexión o procesamiento: ${error.message}`;
-                appendProgress(errorText, true,"", "oracle");
+                appendProgress(errorText, true, "", "oracle");
                 showNotification('Error', errorText, 'error');
-                 // Style progress bar on error
+                // Style progress bar on error
                 progressBar.classList.add('bg-danger');
                 progressBar.classList.remove('progress-bar-animated');
                 progressBar.textContent = 'Error';
@@ -312,8 +312,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Optional: Check file type
             const fileName = fileInputgde.files[0].name;
             if (!fileName.toLowerCase().endsWith('.xls')) {
-                 showNotification('Error', 'Por favor, selecciona un archivo .xlsx.', 'error');
-                 return;
+                showNotification('Error', 'Por favor, selecciona un archivo .xlsx.', 'error');
+                return;
             }
 
 
@@ -340,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (!response.ok) {
                     // ... (error handling as before) ...
-                    appendProgress(errorMsg, true,"", "gde");
+                    appendProgress(errorMsg, true, "", "gde");
                     showNotification('Error', errorMsg, 'error');
                     // Style progress bar on error
                     progressBargde.classList.add('bg-danger');
@@ -351,9 +351,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (!response.body) {
                     // ... (error handling as before) ...
-                    appendProgress("Error: La respuesta del servidor no tiene cuerpo...", true,"", "gde");
+                    appendProgress("Error: La respuesta del servidor no tiene cuerpo...", true, "", "gde");
                     showNotification('Error', "Respuesta inválida del servidor.", 'error');
-                     // Style progress bar on error
+                    // Style progress bar on error
                     progressBargde.classList.add('bg-danger');
                     progressBargde.classList.remove('progress-bar-animated');
                     progressBargde.textContent = 'Error';
@@ -371,12 +371,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.log("Stream finalizado por el servidor.");
                         // Process remaining buffer
                         if (buffer.trim()) {
-                             const lines = buffer.split('\n\n');
-                             lines.forEach(line => {
+                            const lines = buffer.split('\n\n');
+                            lines.forEach(line => {
                                 if (line.startsWith('data:')) {
                                     const message = line.substring(5).trim();
                                     if (message) {
-                                        appendProgress(message,false,"", "gde"); // Append final text messages
+                                        appendProgress(message, false, "", "gde"); // Append final text messages
                                         // Potentially update progress bar based on final message
                                         if (message.toLowerCase().includes("completado") || message.toLowerCase().includes("finalizado")) {
                                             progressBargde.style.width = '100%';
@@ -392,7 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                         }
                                     }
                                 }
-                             });
+                            });
                         }
                         // Check if success notification was already shown by final message
                         const lastMessage = progressContainergde.lastChild ? progressContainergde.lastChild.textContent : '';
@@ -414,7 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (messagePart.startsWith('data:')) {
                             const message = messagePart.substring(5, messagePart.length - 2).trim();
                             if (message) {
-                                appendProgress(message,false,"", "gde"); // Append text message to the text area
+                                appendProgress(message, false, "", "gde"); // Append text message to the text area
 
                                 // --- Update Progress Bar based on message content ---
                                 const progressMatch = message.match(/Procesando fila (\d+)\/(\d+)/);
@@ -436,9 +436,9 @@ document.addEventListener('DOMContentLoaded', () => {
                                     progressBargde.classList.add('bg-success'); // Optional: Green color on success
                                     // Notification is handled after loop finishes or by final message check
                                 } else if (message.toLowerCase().includes("error")) {
-                                     progressBargde.classList.add('bg-danger');
-                                     progressBargde.classList.remove('progress-bar-animated');
-                                     progressBargde.textContent = 'Error';
+                                    progressBargde.classList.add('bg-danger');
+                                    progressBargde.classList.remove('progress-bar-animated');
+                                    progressBargde.textContent = 'Error';
                                 }
                                 // --- End Progress Bar Update ---
                             }
@@ -452,9 +452,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Error durante el fetch o la lectura del stream:', error);
                 const errorText = `Error de conexión o procesamiento: ${error.message}`;
-                appendProgress(errorText, true,"", "gde");
+                appendProgress(errorText, true, "", "gde");
                 showNotification('Error', errorText, 'error');
-                 // Style progress bar on error
+                // Style progress bar on error
                 progressBargde.classList.add('bg-danger');
                 progressBargde.classList.remove('progress-bar-animated');
                 progressBargde.textContent = 'Error';
@@ -495,7 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("asd")
             const fechaDesde = fechaDesdeInput.value;
             const fechaHasta = fechaHastaInput.value;
-            
+
             // Validación simple
             if (!fechaDesde || !fechaHasta) {
                 showNotification('Error', 'Por favor, selecciona ambas fechas.', 'error');
@@ -532,13 +532,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
                         const matches = filenameRegex.exec(disposition);
                         if (matches != null && matches[1]) {
-                          filename = matches[1].replace(/['"]/g, '');
+                            filename = matches[1].replace(/['"]/g, '');
                         }
                     }
 
                     showNotification('Éxito', `La descarga de "${filename}" debería comenzar en breve.`, 'success');
                     if (resultadosExportarDiv) {
-                         resultadosExportarDiv.innerHTML = `Archivo <strong>${filename}</strong> generado. La descarga debería iniciarse.`;
+                        resultadosExportarDiv.innerHTML = `Archivo <strong>${filename}</strong> generado. La descarga debería iniciarse.`;
                     }
 
                     const blob = await response.blob();
@@ -563,17 +563,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.error("No se pudo parsear el error JSON:", e);
                     }
                     showNotification('Error', errorMsg, 'error');
-                     if (resultadosExportarDiv) {
-                         resultadosExportarDiv.innerHTML = `<span style="color: red;">Error: ${errorMsg}</span>`;
-                     }
+                    if (resultadosExportarDiv) {
+                        resultadosExportarDiv.innerHTML = `<span style="color: red;">Error: ${errorMsg}</span>`;
+                    }
                 }
 
             } catch (error) {
                 console.error('Error en la petición fetch para exportar:', error);
                 showNotification('Error', `Error de red o conexión al intentar exportar: ${error.message}`, 'error');
-                 if (resultadosExportarDiv) {
-                     resultadosExportarDiv.innerHTML = `<span style="color: red;">Error de conexión.</span>`;
-                 }
+                if (resultadosExportarDiv) {
+                    resultadosExportarDiv.innerHTML = `<span style="color: red;">Error de conexión.</span>`;
+                }
             } finally {
                 // Restaurar botón
                 buscarExportarBtn.disabled = false;
@@ -582,115 +582,115 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
     } else {
-         console.error("Faltan elementos del DOM necesarios para la exportación (Sección 2).");
+        console.error("Faltan elementos del DOM necesarios para la exportación (Sección 2).");
     }
 
-   // send api logic section 3
-   const enviarfechaDesdeInput = document.getElementById('fechaDesdeEnviar');
-   const enviarfechaHastaInput = document.getElementById('fechaHastaEnviar');
-   const tipoDteInput = document.getElementById('tipoDteInput'); // Asegúrate que este ID existe en tu HTML
+    // send api logic section 3
+    const enviarfechaDesdeInput = document.getElementById('fechaDesdeEnviar');
+    const enviarfechaHastaInput = document.getElementById('fechaHastaEnviar');
+    const tipoDteInput = document.getElementById('tipoDteInput'); // Asegúrate que este ID existe en tu HTML
 
-   const enviarBtn = document.getElementById('enviarBtn');
-   const resultadosEnviarDiv = document.getElementById('resultadosEnviar'); // Div para estado inicial/final
-   // *** NUEVO: Referencia al contenedor de progreso para la sección 3 ***
-   const progressContainerEnviar = document.getElementById('progress-container-enviar'); // Necesitas añadir este div en tu HTML
+    const enviarBtn = document.getElementById('enviarBtn');
+    const resultadosEnviarDiv = document.getElementById('resultadosEnviar'); // Div para estado inicial/final
+    // *** NUEVO: Referencia al contenedor de progreso para la sección 3 ***
+    const progressContainerEnviar = document.getElementById('progress-container-enviar'); // Necesitas añadir este div en tu HTML
 
-   // Helper function para añadir progreso al contenedor específico de la sección 3
-   function appendProgressEnviar(message, isError = false) {
-       if (!progressContainerEnviar) return;
-       const line = document.createElement('div');
-       line.textContent = message;
-       // Reutiliza la lógica de estilo (puedes refinarla más si quieres)
-       if (isError || message.toLowerCase().includes("error")) {
-           line.style.color = 'red';
-       } else if (message.toLowerCase().includes("exitosamente") || message.toLowerCase().includes("completado") || message.toLowerCase().includes("finalizado") || message.toLowerCase().includes("actualizado")) {
-           line.style.color = 'green';
-       } else if (message.toLowerCase().includes("advertencia") || message.toLowerCase().includes("saltando")) {
+    // Helper function para añadir progreso al contenedor específico de la sección 3
+    function appendProgressEnviar(message, isError = false) {
+        if (!progressContainerEnviar) return;
+        const line = document.createElement('div');
+        line.textContent = message;
+        // Reutiliza la lógica de estilo (puedes refinarla más si quieres)
+        if (isError || message.toLowerCase().includes("error")) {
+            line.style.color = 'red';
+        } else if (message.toLowerCase().includes("exitosamente") || message.toLowerCase().includes("completado") || message.toLowerCase().includes("finalizado") || message.toLowerCase().includes("actualizado")) {
+            line.style.color = 'green';
+        } else if (message.toLowerCase().includes("advertencia") || message.toLowerCase().includes("saltando")) {
             line.style.color = 'orange';
-       } else if (message.startsWith("---")) { // Para los separadores
+        } else if (message.startsWith("---")) { // Para los separadores
             line.style.fontWeight = 'bold';
             line.style.marginTop = '5px';
             line.style.color = '#555';
-       }
-       else {
-           line.style.color = 'inherit'; // o 'black'
-       }
-       progressContainerEnviar.appendChild(line);
-       progressContainerEnviar.scrollTop = progressContainerEnviar.scrollHeight; // Auto-scroll
-   }
+        }
+        else {
+            line.style.color = 'inherit'; // o 'black'
+        }
+        progressContainerEnviar.appendChild(line);
+        progressContainerEnviar.scrollTop = progressContainerEnviar.scrollHeight; // Auto-scroll
+    }
 
     // Helper function para procesar el buffer restante (similar a la de /procesar_archivo)
     function processBufferEnviar(bufferContent) {
         const lines = bufferContent.split('\n\n');
         lines.forEach(line => {
-           if (line.startsWith('data:')) {
-               const message = line.substring(5).trim();
-               if (message) {
-                   appendProgressEnviar(message);
-               }
-           }
+            if (line.startsWith('data:')) {
+                const message = line.substring(5).trim();
+                if (message) {
+                    appendProgressEnviar(message);
+                }
+            }
         });
     }
 
 
-   // Verifica que todos los elementos necesarios existan
-   if (enviarfechaDesdeInput && enviarfechaHastaInput && tipoDteInput && enviarBtn && resultadosEnviarDiv && progressContainerEnviar) {
+    // Verifica que todos los elementos necesarios existan
+    if (enviarfechaDesdeInput && enviarfechaHastaInput && tipoDteInput && enviarBtn && resultadosEnviarDiv && progressContainerEnviar) {
 
-       enviarBtn.addEventListener('click', async () => {
-           const fechaDesde = enviarfechaDesdeInput.value;
-           const fechaHasta = enviarfechaHastaInput.value;
-           const tipoDte = tipoDteInput.value; // Obtener valor del tipo DTE
+        enviarBtn.addEventListener('click', async () => {
+            const fechaDesde = enviarfechaDesdeInput.value;
+            const fechaHasta = enviarfechaHastaInput.value;
+            const tipoDte = tipoDteInput.value; // Obtener valor del tipo DTE
 
-           // --- Validación ---
-           if (!fechaDesde || !fechaHasta || !tipoDte) { // Validar también tipoDte
-               showNotification('Error', 'Por favor, selecciona ambas fechas y el Tipo DTE.', 'error');
-               return;
-           }
-           // Opcional: Validar que tipoDte sea un número si es necesario
-           if (isNaN(tipoDte)) {
+            // --- Validación ---
+            if (!fechaDesde || !fechaHasta || !tipoDte) { // Validar también tipoDte
+                showNotification('Error', 'Por favor, selecciona ambas fechas y el Tipo DTE.', 'error');
+                return;
+            }
+            // Opcional: Validar que tipoDte sea un número si es necesario
+            if (isNaN(tipoDte)) {
                 showNotification('Error', 'El Tipo DTE debe ser un número.', 'error');
                 return;
-           }
+            }
 
-           if (new Date(fechaDesde) > new Date(fechaHasta)) {
-               showNotification('Error', 'La fecha "Desde" no puede ser posterior a la fecha "Hasta".', 'error');
-               return;
-           }
+            if (new Date(fechaDesde) > new Date(fechaHasta)) {
+                showNotification('Error', 'La fecha "Desde" no puede ser posterior a la fecha "Hasta".', 'error');
+                return;
+            }
 
-           // --- UI Update: Start ---
-           enviarBtn.disabled = true;
-           enviarBtn.textContent = 'Enviando...';
-           // Limpiar contenedor de progreso y mostrar estado inicial
-           progressContainerEnviar.innerHTML = 'Iniciando proceso de envío a Defontana...';
-           if (resultadosEnviarDiv) {
-               resultadosEnviarDiv.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Enviando...</span></div> Procesando...';
-               resultadosEnviarDiv.style.color = 'inherit';
-           }
+            // --- UI Update: Start ---
+            enviarBtn.disabled = true;
+            enviarBtn.textContent = 'Enviando...';
+            // Limpiar contenedor de progreso y mostrar estado inicial
+            progressContainerEnviar.innerHTML = 'Iniciando proceso de envío a Defontana...';
+            if (resultadosEnviarDiv) {
+                resultadosEnviarDiv.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Enviando...</span></div> Procesando...';
+                resultadosEnviarDiv.style.color = 'inherit';
+            }
 
-           // --- Prepare Data ---
-           const formData = new FormData();
-           formData.append('fechaDesde', fechaDesde);
-           formData.append('fechaHasta', fechaHasta);
-           formData.append('tipoDte', tipoDte); // Enviar tipoDte
+            // --- Prepare Data ---
+            const formData = new FormData();
+            formData.append('fechaDesde', fechaDesde);
+            formData.append('fechaHasta', fechaHasta);
+            formData.append('tipoDte', tipoDte); // Enviar tipoDte
 
-           // --- Fetch Request con Stream Handling ---
-           try {
-               const response = await fetch('/subir_defontana', {
-                   method: 'POST',
-                   body: formData
-               });
+            // --- Fetch Request con Stream Handling ---
+            try {
+                const response = await fetch('/subir_defontana', {
+                    method: 'POST',
+                    body: formData
+                });
 
-               // --- INICIO: Lógica de Stream para /subir_defontana ---
-               if (!response.ok) {
-                   // Intenta obtener un mensaje de error si el servidor lo envió (ej. error 400 inicial)
-                   let errorMsg = `Error ${response.status}: ${response.statusText}`;
+                // --- INICIO: Lógica de Stream para /subir_defontana ---
+                if (!response.ok) {
+                    // Intenta obtener un mensaje de error si el servidor lo envió (ej. error 400 inicial)
+                    let errorMsg = `Error ${response.status}: ${response.statusText}`;
                     try {
                         const errorText = await response.text();
                         // Intenta parsear como JSON, si no, usa el texto
                         try {
                             const errorData = JSON.parse(errorText);
                             errorMsg = errorData.message || errorData.error || errorMsg;
-                        } catch(jsonError) {
+                        } catch (jsonError) {
                             // Si el error viene como texto plano desde el stream de error inicial
                             if (errorText.startsWith('data:')) {
                                 errorMsg = errorText.substring(5).trim();
@@ -698,114 +698,114 @@ document.addEventListener('DOMContentLoaded', () => {
                                 errorMsg = errorText;
                             }
                         }
-                    } catch(readError) {
+                    } catch (readError) {
                         // No se pudo leer el cuerpo del error
                     }
-                   showNotification('Error', `Error inicial: ${errorMsg}`, 'error');
-                   if (resultadosEnviarDiv) resultadosEnviarDiv.innerHTML = `<span style="color: red;">Error: ${errorMsg}</span>`;
-                   appendProgressEnviar(`Error inicial: ${errorMsg}`, true); // Añadir al log de progreso
-                   return; // Salir temprano
-               }
+                    showNotification('Error', `Error inicial: ${errorMsg}`, 'error');
+                    if (resultadosEnviarDiv) resultadosEnviarDiv.innerHTML = `<span style="color: red;">Error: ${errorMsg}</span>`;
+                    appendProgressEnviar(`Error inicial: ${errorMsg}`, true); // Añadir al log de progreso
+                    return; // Salir temprano
+                }
 
-               if (!response.body) {
-                   const errorMsg = "Error: La respuesta del servidor no tiene cuerpo (stream).";
-                   showNotification('Error', errorMsg, 'error');
+                if (!response.body) {
+                    const errorMsg = "Error: La respuesta del servidor no tiene cuerpo (stream).";
+                    showNotification('Error', errorMsg, 'error');
                     if (resultadosEnviarDiv) resultadosEnviarDiv.innerHTML = `<span style="color: red;">${errorMsg}</span>`;
                     appendProgressEnviar(errorMsg, true);
-                   return;
-               }
+                    return;
+                }
 
-               // --- Lectura del Stream ---
-               const reader = response.body.getReader();
-               const decoder = new TextDecoder();
-               let buffer = '';
-               let finalMessage = ''; // Para guardar el último mensaje o resumen
+                // --- Lectura del Stream ---
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                let finalMessage = ''; // Para guardar el último mensaje o resumen
 
-               while (true) {
-                   const { value, done } = await reader.read();
-                   if (done) {
-                       console.log("Stream de /subir_defontana finalizado.");
-                       // Procesar buffer restante si lo hay
-                       if (buffer.trim()) {
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) {
+                        console.log("Stream de /subir_defontana finalizado.");
+                        // Procesar buffer restante si lo hay
+                        if (buffer.trim()) {
                             processBufferEnviar(buffer); // Usa la función helper para procesar
-                       }
+                        }
 
-                       // --- UI Update: Stream End ---
-                       // Determinar estado final basado en el último mensaje significativo
-                       let hasErrors = finalMessage.toLowerCase().includes("error") || progressContainerEnviar.innerHTML.toLowerCase().includes("error");
-                       let hasSuccess = finalMessage.toLowerCase().includes("finalizado") || finalMessage.toLowerCase().includes("completado");
+                        // --- UI Update: Stream End ---
+                        // Determinar estado final basado en el último mensaje significativo
+                        let hasErrors = finalMessage.toLowerCase().includes("error") || progressContainerEnviar.innerHTML.toLowerCase().includes("error");
+                        let hasSuccess = finalMessage.toLowerCase().includes("finalizado") || finalMessage.toLowerCase().includes("completado");
 
-                       if (hasErrors) {
+                        if (hasErrors) {
                             showNotification('Error', 'El proceso finalizó con errores.', 'error');
                             if (resultadosEnviarDiv) resultadosEnviarDiv.innerHTML = `<span style="color: red;">Proceso finalizado con errores. Ver detalles.</span>`;
-                       } else if (hasSuccess) {
+                        } else if (hasSuccess) {
                             showNotification('Éxito', 'Proceso de envío a Defontana completado.', 'success');
                             if (resultadosEnviarDiv) resultadosEnviarDiv.innerHTML = `<span style="color: green;">Proceso completado exitosamente.</span>`;
-                       } else {
+                        } else {
                             // Si no hay mensaje claro de éxito o error, pero terminó.
                             showNotification('Info', 'Proceso terminado.', 'info');
                             if (resultadosEnviarDiv) resultadosEnviarDiv.innerHTML = `<span>Proceso terminado.</span>`;
-                       }
-                       break; // Salir del bucle while
-                   }
+                        }
+                        break; // Salir del bucle while
+                    }
 
-                   // Decodificar y procesar chunk
-                   buffer += decoder.decode(value, { stream: true });
-                   let boundary = buffer.indexOf('\n\n');
+                    // Decodificar y procesar chunk
+                    buffer += decoder.decode(value, { stream: true });
+                    let boundary = buffer.indexOf('\n\n');
 
-                   while (boundary !== -1) {
-                       const messagePart = buffer.substring(0, boundary + 2);
-                       buffer = buffer.substring(boundary + 2);
+                    while (boundary !== -1) {
+                        const messagePart = buffer.substring(0, boundary + 2);
+                        buffer = buffer.substring(boundary + 2);
 
-                       if (messagePart.startsWith('data:')) {
-                           const message = messagePart.substring(5, messagePart.length - 2).trim();
-                           if (message) {
-                               appendProgressEnviar(message); // Usa la función helper para mostrar
-                               finalMessage = message; // Actualiza el último mensaje recibido
-                           }
-                       } else if (messagePart.startsWith('event: end')) {
-                           console.log("Evento 'end' recibido de /subir_defontana.");
-                           // El bucle terminará en la siguiente iteración porque done será true
-                       }
-                       // Ignorar otros tipos de eventos o líneas vacías
-                       boundary = buffer.indexOf('\n\n');
-                   }
-               } // Fin while(true)
+                        if (messagePart.startsWith('data:')) {
+                            const message = messagePart.substring(5, messagePart.length - 2).trim();
+                            if (message) {
+                                appendProgressEnviar(message); // Usa la función helper para mostrar
+                                finalMessage = message; // Actualiza el último mensaje recibido
+                            }
+                        } else if (messagePart.startsWith('event: end')) {
+                            console.log("Evento 'end' recibido de /subir_defontana.");
+                            // El bucle terminará en la siguiente iteración porque done será true
+                        }
+                        // Ignorar otros tipos de eventos o líneas vacías
+                        boundary = buffer.indexOf('\n\n');
+                    }
+                } // Fin while(true)
 
-           } catch (error) {
-               // --- Handle Network/Fetch Errors ---
-               console.error('Error en la petición fetch para /subir_defontana:', error);
-               const networkErrorMsg = `Error de red o conexión: ${error.message}`;
-               showNotification('Error', networkErrorMsg, 'error');
-               if (resultadosEnviarDiv) {
-                   resultadosEnviarDiv.innerHTML = `<span style="color: red;">${networkErrorMsg}</span>`;
-               }
+            } catch (error) {
+                // --- Handle Network/Fetch Errors ---
+                console.error('Error en la petición fetch para /subir_defontana:', error);
+                const networkErrorMsg = `Error de red o conexión: ${error.message}`;
+                showNotification('Error', networkErrorMsg, 'error');
+                if (resultadosEnviarDiv) {
+                    resultadosEnviarDiv.innerHTML = `<span style="color: red;">${networkErrorMsg}</span>`;
+                }
                 appendProgressEnviar(networkErrorMsg, true); // Añadir al log de progreso
 
-           } finally {
-               // --- UI Update: Always Run ---
-               enviarBtn.disabled = false; // Re-enable the button
-               enviarBtn.textContent = 'Enviar'; // Reset button text
-               // Opcional: Limpiar el spinner si aún está visible después de un tiempo
+            } finally {
+                // --- UI Update: Always Run ---
+                enviarBtn.disabled = false; // Re-enable the button
+                enviarBtn.textContent = 'Enviar'; // Reset button text
+                // Opcional: Limpiar el spinner si aún está visible después de un tiempo
                 setTimeout(() => {
-                   if (resultadosEnviarDiv && resultadosEnviarDiv.innerHTML.includes('spinner-border')) {
-                       if (!progressContainerEnviar.innerHTML.toLowerCase().includes("error")) {
+                    if (resultadosEnviarDiv && resultadosEnviarDiv.innerHTML.includes('spinner-border')) {
+                        if (!progressContainerEnviar.innerHTML.toLowerCase().includes("error")) {
                             resultadosEnviarDiv.innerHTML = 'Listo.';
-                       } else {
+                        } else {
                             resultadosEnviarDiv.innerHTML = '<span style="color: red;">Finalizado con errores.</span>';
-                       }
-                   }
+                        }
+                    }
                 }, 5000); // Limpia después de 5 segundos si no se actualizó antes
-           }
-       }); // Fin addEventListener
+            }
+        }); // Fin addEventListener
 
-   } else {
-       // Log si faltan elementos principales para esta sección
-       console.error("Faltan elementos del DOM necesarios para la sección de envío a Defontana (Sección 3):",
-           { enviarfechaDesdeInput, enviarfechaHastaInput, tipoDteInput, enviarBtn, resultadosEnviarDiv, progressContainerEnviar });
+    } else {
+        // Log si faltan elementos principales para esta sección
+        console.error("Faltan elementos del DOM necesarios para la sección de envío a Defontana (Sección 3):",
+            { enviarfechaDesdeInput, enviarfechaHastaInput, tipoDteInput, enviarBtn, resultadosEnviarDiv, progressContainerEnviar });
         // Opcional: Mostrar un mensaje al usuario en la propia sección
-        if(document.getElementById('content3')) {
+        if (document.getElementById('content3')) {
             document.getElementById('content3').innerHTML = '<p style="color: red;">Error: No se pudieron cargar los controles para esta sección.</p>';
         }
-   }
+    }
 });

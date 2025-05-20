@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from termcolor import colored
 from datetime import datetime
 from datetime import timedelta
-from utils.common import formatRut, convertir_fecha_latin_a_iso, formatear_rut, ejecutar_consulta, insertar_resultados, connect
+from utils.common import formatRut, convertir_fecha_latin_a_iso, formatear_rut, ejecutar_consulta, insertar_resultados, connect, convertir_datetime_a_fecha_iso_hora
 
 #entorno gde
 load_dotenv()
@@ -270,7 +270,7 @@ def get_token():
 
 # Función para obtener el header de autorización utilizando el token actual almacenado en token.conf
 def get_auth_headers():
-    token_file = "token.conf"
+    #token_file = "token.conf"
     access_token = os.getenv("token")
     if not access_token:
         print("No hay token disponible. Ejecuta getToken() primero.")
@@ -809,7 +809,7 @@ def procesar_arqueo_opera(filename):
         "duplicados": 0,
         "errores": 0
     }
-    
+    errores = []
     try:
         # Registrar inicio del proceso
         mensajes.append(f"Iniciando procesamiento del archivo: {filename}")
@@ -848,7 +848,8 @@ def procesar_arqueo_opera(filename):
                 # Verificar si la fila está vacía o es un encabezado
                 if len(valores) < 15 or valores[1] == 'TRX_DATE' or valores[1] is None:
                     continue
-                    
+                
+                
                 estadisticas["procesados"] += 1
                 
                 # Crear el índice único
@@ -856,18 +857,20 @@ def procesar_arqueo_opera(filename):
                 
                 # Normalizar valores
                 trx_code = valores[0]
-                trx_date = valores[1]
-                pname = valores[2] or ""
-                room = valores[5]
-                remark = valores[6] or ""
-                reference = valores[7] or ""
-                amt = valores[8]
-                confirmation_no = valores[9]
-                bill_no = valores[10]
-                folio_type = valores[11]
-                fiscal_bill_no = valores[12]
-                cashier_id = valores[13]
-                app_user = valores[14] or ""
+                trx_date = datetime.strptime(valores[1], "%d/%m/%Y %H:%M:%S")
+                
+                
+                pname = valores[3] or ""
+                room = valores[6]
+                remark = valores[8] or ""
+                reference = valores[11] or ""
+                amt = valores[12]
+                confirmation_no = valores[14]
+                bill_no = valores[16]
+                folio_type = valores[19]
+                fiscal_bill_no = valores[21]
+                cashier_id = valores[23]
+                app_user = valores[24] or ""
                 
                 # Verificar si el registro ya existe
                 print(colored(f"{ASK_SYMBOL} Consultando si existe el registro en la base de datos...", "white"))
@@ -894,8 +897,9 @@ def procesar_arqueo_opera(filename):
                     confirmation_no, bill_no, folio_type, fiscal_bill_no,
                     cashier_id, app_user, index_column
                 )
-                
+                #print(valores_insercion)
                 insertar_resultados_seguros(conexion, query, valores_insercion)
+                print(colored(f" {OK_SYMBOL} Registro insertado correctamente.", "green"))
                 estadisticas["insertados"] += 1
                 
             except Exception as e:
@@ -903,6 +907,7 @@ def procesar_arqueo_opera(filename):
                 mensaje_error = f"Error procesando fila {i}: {e}"
                 mensajes.append(mensaje_error)
                 print(colored(f" {ERROR_SYMBOL} {mensaje_error}", "red"))
+                errores.append(mensaje_error)
                 
         # Resumen de procesamiento
         mensaje_resumen = (f"Procesamiento completado: {estadisticas['procesados']} registros procesados, "
@@ -921,13 +926,24 @@ def procesar_arqueo_opera(filename):
         mensaje_error = f"Error: Archivo no encontrado: {filename}"
         mensajes.append(mensaje_error)
         print(colored(f" {ERROR_SYMBOL} {mensaje_error}", "red"))
+        errores.append(mensaje_error)
         return mensajes, None
         
     except Exception as e:
         mensaje_error = f"Error general: {e}"
         mensajes.append(mensaje_error)
         print(colored(f" {ERROR_SYMBOL} {mensaje_error}", "red"))
+        errores.append(mensaje_error)
         return mensajes, None
+    
+    finally:
+        if len(errores) > 0:
+            print(colored(f" {ERROR_SYMBOL}, Errores:", "red"))
+            for error in errores:
+                print(colored(f" {ERROR_SYMBOL} {error}", "red"))
+        workbook.close()
+        conexion.close()
+
 
 # Esta función es necesaria para reemplazar el insertar_resultados actual
 # con una versión que use consultas parametrizadas
@@ -1073,19 +1089,19 @@ def crear_payload_voucher_lines(fecha_str_input):
             "comment": str(fila[7]),
             "fileId": fila[13],
             "documentType": str(fila[15]),
-            #"documentSeries": '',
+            "documentSeries": "",
             "documentNumber": int(fila[16]),
             "documentExpirationDate": str(fila[18]),
-            #"bussinessCenterId": str(fila[19]),
-            #"classifier1Id": str(fila[20]),
-            #"classifier2Id": str(fila[21]),
-            #"referenceCurrencyId": '',
-            #"referenceExchangeRate": 0,
-            #"movementTypeId": '',
-            #"movementSeries": '',
-            #"movementNumber": '',
-            #"accountAmountRate": 0,
-            #"ctaCreditOrDebitAmount": 0
+            "bussinessCenterId": "",
+            "classifier1Id": "",
+            "classifier2Id": "",
+            "referenceCurrencyId": "",
+            "referenceExchangeRate": 0,
+            "movementTypeId": "",
+            "movementSeries": "",
+            "movementNumber": "",
+            "accountAmountRate": 0,
+            "ctaCreditOrDebitAmount": 0
             }
         #print(f"\n Linea detalle No: {no_linea_detalle}\n ->{linea_detaile}")
         payload_detalle.append(linea_detaile)
@@ -1118,7 +1134,7 @@ def subir_voucher_defontana(payload_voucher):
         #print(f"\n Intentando subir el siguiente payload: \n{payload}")
         resp = requests.post(url, headers={**headers, "Content-Type": "application/json"}, json=payload_voucher)
         #resp = requests.post(url, headers={**headers, "Content-Type": "application/json"}, json=payload)
-        #print("\n Respuesta del servidor (guardar_venta):")
+        print(f"\n Respuesta del servidor (guardar_venta): {resp}")
         return resp
             
     except Exception as e:

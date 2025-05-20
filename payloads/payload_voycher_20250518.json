@@ -1,0 +1,92 @@
+
+{
+    "header": {
+        "fiscalYear": 2025,
+        "number": 0,
+        "voucherType": "TRASPASO",
+        "date": "2025-05-18",
+        "comment": "Caja del 18 de 5 del 2025"
+    },
+    "detail": [
+        {
+            "accountCode": "1110401023",
+            "debit": 0,
+            "credit": 49980,
+            "secondaryDebit": 0,
+            "secondaryCredit": 0,
+            "exchangeRate": 0,
+            "comment": "329054174 Paulette, Jazmin, SRTA RM1303",
+            "fileId": "21.188.566-1",
+            "documentType": "BEAV",
+            "documentNumber": 797,
+            "documentExpirationDate": "2025-06-17"
+        },
+        {
+            "accountCode": "2120404002",
+            "debit": 0,
+            "credit": 290027,
+            "secondaryDebit": 0,
+            "secondaryCredit": 0,
+            "exchangeRate": 0,
+            "comment": "329062051 Ortiz Riveros, Jaime, SR RM1205",
+            "fileId": "",
+            "documentType": "",
+            "documentNumber": 0,
+            "documentExpirationDate": ""
+        },
+        {
+            "accountCode": "2120404002",
+            "debit": 0,
+            "credit": 118881,
+            "secondaryDebit": 0,
+            "secondaryCredit": 0,
+            "exchangeRate": 0,
+            "comment": "329062818 Delgado, Beatriz, SRA RM1203",
+            "fileId": "",
+            "documentType": "",
+            "documentNumber": 0,
+            "documentExpirationDate": ""
+        },
+        {
+            "accountCode": "1110101001",
+            "debit": 49980,
+            "credit": 0,
+            "secondaryDebit": 0,
+            "secondaryCredit": 0,
+            "exchangeRate": 0,
+            "comment": "329054174 Paulette, Jazmin, SRTA RM1303",
+            "fileId": "",
+            "documentType": "",
+            "documentNumber": 0,
+            "documentExpirationDate": ""
+        },
+        {
+            "accountCode": "1110402108",
+            "debit": 290027,
+            "credit": 0,
+            "secondaryDebit": 0,
+            "secondaryCredit": 0,
+            "exchangeRate": 0,
+            "comment": "329062051 Ortiz Riveros, Jaime, SR RM1205",
+            "fileId": "",
+            "documentType": "",
+            "documentNumber": 0,
+            "documentExpirationDate": ""
+        },
+        {
+            "accountCode": "1110402101",
+            "debit": 118881,
+            "credit": 0,
+            "secondaryDebit": 0,
+            "secondaryCredit": 0,
+            "exchangeRate": 0,
+            "comment": "329062818 Delgado, Beatriz, SRA RM1203",
+            "fileId": "",
+            "documentType": "",
+            "documentNumber": 0,
+            "documentExpirationDate": ""
+        }
+    ],
+    "automaticFoliation": true
+}
+

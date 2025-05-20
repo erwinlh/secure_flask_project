@@ -61,7 +61,7 @@
                     </ul>
                     <ul class="navbar-nav">
                         {% if 'username' in session %}
-                        <li class="nav-item">
+                        <li>
                             <span class="nav-link text-white">Hola, {{ session['username'] }}! (Nivel: {{
                                 session['nivel']
                                 if session['nivel'] else 'Pendiente' }})</span>
@@ -107,7 +107,7 @@
 
         <footer class="footer mt-4">
             <div class="container">
-                <p>&copy; 2025 ApiDunas. Todos los derechos reservados.</p>
+                <p>&copy; 2025 | ApiDunas v7.0.0 | Todos los derechos reservados. | Erwin Torres</p>
             </div>
         </footer>
     </section>

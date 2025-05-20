@@ -48,6 +48,11 @@ main {
     background-color: white;
 }
 
+.form-control{
+width: 90%;
+}
+
+
 /* Selector de secciones */
 .sectionSelectorContainer {
     width: 150px;
@@ -317,6 +322,6 @@ main {
     color: #0c5460;
 }
 
-.form-control {
+/* .form-control {
     max-width: 200px;;
-}
+} */
