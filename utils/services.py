@@ -998,8 +998,8 @@ def crear_payload_voucher_lines(fecha_str_input):
     #fecha_str = fecha_str_input
 
     fecha_obj = datetime.strptime(fecha_str_input, '%Y-%m-%d')
-
     fecha_para_sql = fecha_obj.strftime('%Y-%m-%d')
+    fecha_iso_8601 = fecha_obj.strftime('%Y-%m-%dT00:00:00.000Z')
     #print(f"Fecha formateada para SQL: {fecha_para_sql}")
 
     query_voucher = f"SELECT * FROM vouchercaja where fecha = '{fecha_para_sql}';"    
@@ -1064,13 +1064,15 @@ def crear_payload_voucher_lines(fecha_str_input):
 
     """
     
+    # Para formato ISO 8601 como requiere la API
+    
     
     #print(consulta)
     payload_header = {
             "fiscalYear": fecha_obj.year,
             "number": 0,                    #dejar en cero para que tome correlativo
             "voucherType": 'TRASPASO',
-            "date": fecha_str_input,
+            "date": fecha_iso_8601,
             "comment": f"Caja del {fecha_obj.day} de {fecha_obj.month} del {fecha_obj.year}",
         }
     #print(f"\n Encabezado del Voucher:{payload_header}")
@@ -1079,7 +1081,21 @@ def crear_payload_voucher_lines(fecha_str_input):
     no_linea_detalle = 0
     for fila in consulta:
         no_linea_detalle += 1
-        linea_detaile = {
+        
+        doc_numero = 0
+        if fila[16] and str(fila[16]).isdigit():
+            doc_numero = int(fila[16])
+        
+        fecha_vencimiento = None
+        if fila[18] and str(fila[18]).strip():  # Si hay fecha de vencimiento
+            try:
+                # Convertir a formato ISO 8601
+                fecha_venc_obj = datetime.strptime(str(fila[18]), '%Y-%m-%d')
+                fecha_vencimiento = fecha_venc_obj.strftime('%Y-%m-%dT00:00:00.000Z')
+            except:
+                fecha_vencimiento = None  # Si hay error, dejar en None
+        
+        linea_detalle = {
             "accountCode": str(fila[5]),
             "debit": int(fila[8]),
             "credit": int(fila[9]),
@@ -1090,8 +1106,8 @@ def crear_payload_voucher_lines(fecha_str_input):
             "fileId": fila[13],
             "documentType": str(fila[15]),
             "documentSeries": "",
-            "documentNumber": int(fila[16]),
-            "documentExpirationDate": str(fila[18]),
+            "documentNumber": doc_numero,
+            "documentExpirationDate": fecha_vencimiento,
             "bussinessCenterId": "",
             "classifier1Id": "",
             "classifier2Id": "",
@@ -1104,44 +1120,185 @@ def crear_payload_voucher_lines(fecha_str_input):
             "ctaCreditOrDebitAmount": 0
             }
         #print(f"\n Linea detalle No: {no_linea_detalle}\n ->{linea_detaile}")
-        payload_detalle.append(linea_detaile)
+        payload_detalle.append(linea_detalle)
 
     #construir payload final
-    payload_vouchervoucher = {
+    payload_voucher= {
         "header": payload_header,
         "detail": payload_detalle,
         "automaticFoliation": True
     }
-    return payload_vouchervoucher
+    return payload_voucher
 
 def subir_voucher_defontana(payload_voucher):
     """
     Envía una solicitud para guardar un voucher en Defontana usando un diccionario de datos.
     Args:
-        venta (dict): Diccionario con los campos requeridos por la API.
+        payload_voucher (dict): Diccionario con los campos requeridos por la API.
 
     Returns:
-        dict o str: Respuesta de la API.
-
-    
+        dict: Diccionario con los detalles completos de la respuesta, incluyendo:
+            - status_code: Código de estado HTTP
+            - success: Indicador de éxito de la operación según la API
+            - message: Mensaje de la API
+            - exception_message: Mensaje de excepción si existe
+            - voucher_type: Tipo de voucher
+            - number: Número de voucher
+            - fiscal_year: Año fiscal
+            - raw_response: Respuesta completa sin procesar
+            - error: Información de error en caso de excepción
     """
-    url = f"https://api.defontana.com/api/Accounting/InsertVoucher"
+    url = "https://api.defontana.com/api/Accounting/InsertVoucher"
     headers = get_auth_headers()
     if not headers:
         print("No se pudo obtener un token válido para autenticar la petición.")
-        return None
+        return {
+            "status_code": None,
+            "success": False,
+            "message": "No se pudo obtener un token válido para autenticar la petición.",
+            "error": "Autenticación fallida"
+        }
+    
     try:
-        #print(f"\n Intentando subir el siguiente payload: \n{payload}")
-        resp = requests.post(url, headers={**headers, "Content-Type": "application/json"}, json=payload_voucher)
-        #resp = requests.post(url, headers={**headers, "Content-Type": "application/json"}, json=payload)
-        print(f"\n Respuesta del servidor (guardar_venta): {resp}")
-        return resp
+        print(f"\nEnviando solicitud a {url}")
+        resp = requests.post(
+            url, 
+            headers={**headers, "Content-Type": "application/json"}, 
+            json=payload_voucher  # Enviar directamente el payload sin envolver
+        )
+        
+        print(f"Código de respuesta: {resp.status_code}")
+        
+        # Preparar el resultado base con el código de estado
+        result = {
+            "status_code": resp.status_code,
+            "raw_response": resp.text
+        }
+        
+        # Intentar extraer el JSON de la respuesta
+        try:
+            json_response = resp.json()
+            # Añadir todos los campos del JSON al resultado
+            result.update({
+                "success": json_response.get("success"),
+                "message": json_response.get("message"),
+                "exception_message": json_response.get("exceptionMessage"),
+                "voucher_type": json_response.get("voucherType"),
+                "number": json_response.get("number"),
+                "fiscal_year": json_response.get("fiscalYear")
+            })
+        except ValueError:
+            # Si no se puede convertir a JSON, se deja solo el texto crudo
+            result["success"] = False
+            result["message"] = "No se pudo procesar la respuesta como JSON"
+        
+        if resp.status_code != 200:
+            print(f"Error en la respuesta: {resp.text}")
+            result["success"] = False
+        else:
+            print("Voucher subido exitosamente")
+            if "success" not in result:
+                result["success"] = True
+        
+        return result
             
     except Exception as e:
-        print(f"\n Excepción en subir_voucher(): {e}")
+        print(f"\nExcepción en subir_voucher(): {e}")
+        return {
+            "status_code": None,
+            "success": False,
+            "message": f"Excepción: {str(e)}",
+            "error": str(e)
+        }
+    
+
+
+def procesar_voucher_dia(fecha):
+    """
+    Procesa y envía el voucher para una fecha específica
+    
+    Args:
+        fecha (str): Fecha en formato 'YYYY-MM-DD'
+    """
+    # Generar el payload
+    payload = crear_payload_voucher_lines(fecha)
+    
+    if not payload:
+        print(f"No se pudo crear el payload para la fecha {fecha}")
+        return
+    
+    # Validar que el payload esté balanceado (débitos = créditos)
+    total_debito = sum(item["debit"] for item in payload["detail"])
+    total_credito = sum(item["credit"] for item in payload["detail"])
+    
+    fecha_obj = datetime.strptime(fecha, '%Y-%m-%d')
+    fecha_formato = fecha_obj.strftime('%d/%m/%Y')
+    
+    # Visualización en formato de comprobante contable
+    print("\n" + "="*80)
+    print(f"{'COMPROBANTE DE TRASPASO':^80}")
+    print(f"{'FECHA: ' + fecha_formato:^80}")
+    print(f"{'COMENTARIO: ' + payload['header']['comment']:^80}")
+    print("="*80)
+    print(f"{'CUENTA':<12} {'DESCRIPCIÓN':<40} {'DEBE':>12} {'HABER':>12}")
+    print("-"*80)
+    
+    # Detalles
+    for item in payload["detail"]:
+        cuenta = item["accountCode"]
+        comentario = item["comment"][:38] + '..' if len(item["comment"]) > 40 else item["comment"]
+        debe = f"${item['debit']:,.0f}" if item['debit'] > 0 else ""
+        haber = f"${item['credit']:,.0f}" if item['credit'] > 0 else ""
+        
+        print(f"{cuenta:<12} {comentario:<40} {debe:>12} {haber:>12}")
+    
+    print("-"*80)
+    print(f"{'TOTALES':^52} ${total_debito:,.0f} ${total_credito:,.0f}")
+    print("="*80)
+    
+    # Validación de balance
+    if total_debito != total_credito:
+        print(f"\n⚠️  ¡ADVERTENCIA! El voucher NO está balanceado:")
+        print(f"    Débitos: ${total_debito:,.0f}")
+        print(f"    Créditos: ${total_credito:,.0f}")
+        print(f"    Diferencia: ${total_debito - total_credito:,.0f}")
+    else:
+        print(f"\n✅ Voucher balanceado correctamente: Total=${total_debito:,.0f}")
+    
+    # Opciones para el usuario
+    print("\nOpciones:")
+    print("1. Enviar comprobante a Defontana")
+    print("2. Ver JSON completo")
+    print("3. Cancelar")
+    
+    opcion = input("\nSeleccione una opción (1-3): ")
+    
+    if opcion == "1":
+        # Enviar a Defontana
+        print("\nEnviando comprobante a Defontana...")
+        respuesta = subir_voucher_defontana(payload)
+        if respuesta["success"]:
+            print(f"Voucher creado exitosamente con número: {respuesta['number']}")
+        else:
+            print(f"Error: {respuesta['message']}")
+        return respuesta
+    elif opcion == "2":
+        # Mostrar JSON completo
+        import json
+        print("\nJSON completo del comprobante:")
+        print(json.dumps(payload, indent=2, ensure_ascii=False))
+        
+        # Preguntar si quiere enviar después de ver el JSON
+        if input("\n¿Enviar este comprobante a Defontana ahora? (s/n): ").lower() == 's':
+            print("\nEnviando comprobante a Defontana...")
+            respuesta = subir_voucher_defontana(payload)
+            return respuesta
+        else:
+            print("Envío cancelado por el usuario.")
+            return None
+    else:
+        print("Operación cancelada por el usuario.")
         return None
-
-
 
 
 
