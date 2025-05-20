@@ -8,6 +8,12 @@ import time
 
 from datetime import datetime, timedelta
 
+
+
+#svc.importar_arqueo_opera(r"C:\OneDrive\OneDrive - Marina Hoteles\Downloads\03-CashierAu_v4 Rng RP_03-CashierAu_v3 A (3).xlsx")
+
+
+
 # Obtener la fecha de inicio desde el usuario
 #fecha_str = input("Ingresa la fecha de inicio (YYYY-MM-DD): ")
 fecha_str = "2025-03-01"

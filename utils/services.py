@@ -790,7 +790,7 @@ def guardar_venta(payload):
 
 
 #funciones de la API de Defontana para Vouchers Contables
-def procesar_arqueo_opera(filename):
+def importar_arqueo_opera(filename):
     """
     Procesa un archivo Excel de arqueo, lee sus datos y los inserta en una base de datos
     si no existen previamente.
@@ -1002,7 +1002,7 @@ def crear_payload_voucher_lines(fecha_str_input):
     fecha_iso_8601 = fecha_obj.strftime('%Y-%m-%dT00:00:00.000Z')
     #print(f"Fecha formateada para SQL: {fecha_para_sql}")
 
-    query_voucher = f"SELECT * FROM vouchercaja where fecha = '{fecha_para_sql}';"    
+    query_voucher = f"SELECT * FROM vouchercaja where fecha = '{fecha_para_sql}' order by cuenta asc;"    
 
     try: 
         consulta = ejecutar_consulta(connect(), query_voucher)
@@ -1010,62 +1010,6 @@ def crear_payload_voucher_lines(fecha_str_input):
     except Exception as e:
         print(f"Error al ejecutar la consulta: {e}")
         return None
-    ### ejemplo de resultado consulta
-    """ 
-    +--------+-----------------+-------------------+------------+----------+------------+---------------------------+----------------------------------------+---------------------+----------------------+----------------------+-----------------------+------------+---------------+-------------------+-----------------+-------------------+------------------+--------------------+------------------+---------------+---------------+------------------+----------------+------------------+--------------------+-------------+-----------------------+------+-----------+--------+-------+
-    | Numero | TipoComprobante | MonedaComprobante | Fecha      | No_Linea | cuenta     | comentario                | glosa                                  | debeMonedaPrincipal | haberMonedaPrincipal | debeMonedaSecundaria | haberMonedaSecundaria | tasaCambio | codigoDeFicha | cancelarDocumento | tipoDeDocumento | numeroDeDocumento | serieDeDocumento | vencimientoDeDocto | CentroDeNegocios | Clasificador1 | Clasificador2 | MonedaReferencia | TasaReferencia | TipoDeMovimiento | NumeroDeMovimiento | codigoLegal | nombre                | giro | direccion | ciudad | rubro |
-    +--------+-----------------+-------------------+------------+----------+------------+---------------------------+----------------------------------------+---------------------+----------------------+----------------------+-----------------------+------------+---------------+-------------------+-----------------+-------------------+------------------+--------------------+------------------+---------------+---------------+------------------+----------------+------------------+--------------------+-------------+-----------------------+------+-----------+--------+-------+
-    | A      | TRASPASO        |                   | 2025-03-09 |          | 9999999999 | Dunas Caja del 2025-03-09 | 327649692 Martinez, Francisco RM1103   |                   0 |               166600 |                      |                       |            |               |                   |                 |                   |                  |                    |                  |               |               |                  |                |                  |                    |             | Martinez, Francisco   | .    | .         | .      |       |
-    | A      | TRASPASO        |                   | 2025-03-09 |          | 9999999999 | Dunas Caja del 2025-03-09 | 327649692 Martinez, Francisco RM1103   |             -166600 |                    0 |                      |                       |            |               |                   |                 |                   |                  |                    |                  |               |               |                  |                |                  |                    |             | Martinez, Francisco   | .    | .         | .      |       |
-    | A      | TRASPASO        |                   | 2025-03-09 |          | 9999999999 | Dunas Caja del 2025-03-09 | 327632205 Aguirre, Patricio, SR RM1004 |                   0 |               261562 |                      |                       |            |               |                   |                 |                   |                  |                    |                  |               |               |                  |                |                  |                    |             | Aguirre, Patricio, SR | .    | .         | .      |       |
-    | A      | TRASPASO        |                   | 2025-03-09 |          | 9999999999 | Dunas Caja del 2025-03-09 | 327649692 Martinez, Francisco RM1103   |                   0 |               166600 |                      |                       |            |               |                   |                 |                   |                  |                    |                  |               |               |                  |                |                  |                    |             | Martinez, Francisco   | .    | .         | .      |       |
-    | A      | TRASPASO        |                   | 2025-03-09 |          | 1110101001 | Dunas Caja del 2025-03-09 | 327649692 Martinez, Francisco RM1103   |              166600 |                    0 |                      |                       |            |               |                   |                 |                   |                  |                    |                  |               |               |                  |                |                  |                    |             |                       | .    | .         | .      |       |
-    | A      | TRASPASO        |                   | 2025-03-09 |          | 1110101001 | Dunas Caja del 2025-03-09 | 327649692 Martinez, Francisco RM1103   |                   0 |              -166600 |                      |                       |            |               |                   |                 |                   |                  |                    |                  |               |               |                  |                |                  |                    |             |                       | .    | .         | .      |       |
-    | A      | TRASPASO        |                   | 2025-03-09 |          | 9999999999 | Dunas Caja del 2025-03-09 | 327632205 Aguirre, Patricio, SR RM1004 |              261562 |                    0 |                      |                       |            |               |                   |                 |                   |                  |                    |                  |               |               |                  |                |                  |                    |             |                       | .    | .         | .      |       |
-    | A      | TRASPASO        |                   | 2025-03-09 |          | 9999999999 | Dunas Caja del 2025-03-09 | 327649692 Martinez, Francisco RM1103   |              166600 |                    0 |                      |                       |            |               |                   |                 |                   |                  |                    |                  |               |               |                  |                |                  |                    |             |                       | .    | .         | .      |       |
-    +--------+-----------------+-------------------+------------+----------+------------+---------------------------+----------------------------------------+---------------------+----------------------+----------------------+-----------------------+------------+---------------+-------------------+-----------------+-------------------+------------------+--------------------+------------------+---------------+---------------+------------------+----------------+------------------+--------------------+-------------+-----------------------+------+-----------+--------+-------+
-    """    
-    """
-    # DESCRIPCION DE CAMPOS PARA INGRESAR UN COMPROBANTE CONTABLE
-
-    "header" >> Este apartado seria el encabezado del comprobante contable
-        "fiscalYear" >> Este campo corresponde al año fiscal || Obligatorio
-        "number" >> Este campo corresponde a el numero del documento. Enviar en 0 si se desea que tome el correlativo || Obligatorio
-        "voucherType" >> Este campo corresponde a el tipo de comprobante || Obligatorio
-        "date" >> Este campo corresponde a la fecha de emision del comprobante || Obligatorio
-        "comment" >> Este campo corresponde al comentario/glosa del comprobante
-    
-    "detail" >> Esta lista se utiliza para enviar las lineas de detalle del comprobante puede tener 2 o 200 elementos
-        "accountCode" >> Este campo corresponde a el numero de cuenta contable || Metodo: api/Accounting/GetAccountPlan || Obligatorio
-        "debit" >> Este campo corresponde al debe || Obligatorio
-        "credit" >> Este campo corresponde al haber || Obligatorio
-        "secondaryDebit" >> Este campo corresponde al debe secundario en caso de ocupar una moneda secundaria
-        "secondaryCredit" >> Este campo corresponde al haber secundario en caso de ocupar una moneda secundaria
-        "exchangeRate" >> Este campo corresponde a la tasa de cambio
-        "comment" >> Este campo corresponde a un comentario en la linea de detalle
-        "documentSeries" >> Este campo corresponde a la serie del documento a referenciar || Metodo: api/Accounting/GetAccountAnalisys
-        "documentType" >> Este campo corresponde a el codigo de tipo de documento a referenciar, El tipo de documento debe existir en Defontana || Metodo: api/Accounting/GetAccountAnalisys
-        "fileId" >> Este campo corresponde al código del cliente (IDficha), El cliente debe existir en Defontana || Metodo: api/Accounting/GetAccountAnalisys
-        "documentNumber" >> Este campo corresponde a el numero de documento a referenciar | Metodo: api/Accounting/GetAccountAnalisys
-        "documentExpirationDate" >> Este campo corresponde a la fecha de vencimiento del documento a referenciar || Metodo: api/Accounting/GetAccountAnalisys
-        "bussinessCenterId" >> Este campo corresponde a el centro de negocio || Metodo: api/Accounting/GetAccountAnalisys
-        "classifier1Id" >> Este campo corresponde a el tipo de clasificador 1 || Metodo: api/Accounting/GetAccountAnalisys
-        "classifier2Id" >> Este campo corresponde a el tipo de clasificador 2 || Metodo: api/Accounting/GetAccountAnalisys
-        "referenceCurrencyId" >> Este campo corresponde a el codigo de moneda de referencia || Metodo: api/Accounting/GetAccountAnalisys
-        "referenceExchangeRate" >> Este campo corresponde a el cambio de moneda de referencia || Metodo: api/Accounting/GetAccountAnalisys
-        "movementTypeId" >> Este campo corresponde a el tipo de movimiento || Metodo: api/Accounting/GetAccountAnalisys
-        "movementSeries" >> Este campo corresponde a el numero de Serie del movimiento || Metodo: api/Accounting/GetAccountAnalisys
-        "movementNumber" >> Este campo corresponde a el numero del movimiento || Metodo: api/Accounting/GetAccountAnalisys
-        "accountAmountRate" >>
-        "ctaCreditOrDebitAmount" >> Este campo corresponde a el DEBE o HABER según corresponda para que en el ERP entregue la opción de conciliación bancaria
-        "automaticFoliation" >> Este campo puede tomar dos valores que son true y false || Obligatorio
-                                Si se envia false dentro del campo number tiene que asignarle el numero de comprobante
-                                Si se envia true dentro del campo number tiene que enviar en 0 para que tome el correlativo
-
-    """
-    
-    # Para formato ISO 8601 como requiere la API
-    
     
     #print(consulta)
     payload_header = {
@@ -1080,31 +1024,32 @@ def crear_payload_voucher_lines(fecha_str_input):
     payload_detalle = []
     no_linea_detalle = 0
     for fila in consulta:
+        #print(fila)
         no_linea_detalle += 1
         
         doc_numero = 0
-        if fila[16] and str(fila[16]).isdigit():
-            doc_numero = int(fila[16])
+        if fila[9] and str(fila[9]).isdigit():
+            doc_numero = int(fila[9])
         
         fecha_vencimiento = None
-        if fila[18] and str(fila[18]).strip():  # Si hay fecha de vencimiento
+        if fila[10] and str(fila[10]).strip():  # Si hay fecha de vencimiento
             try:
                 # Convertir a formato ISO 8601
-                fecha_venc_obj = datetime.strptime(str(fila[18]), '%Y-%m-%d')
+                fecha_venc_obj = datetime.strptime(str(fila[10]), '%Y-%m-%d')
                 fecha_vencimiento = fecha_venc_obj.strftime('%Y-%m-%dT00:00:00.000Z')
             except:
                 fecha_vencimiento = None  # Si hay error, dejar en None
         
         linea_detalle = {
-            "accountCode": str(fila[5]),
-            "debit": int(fila[8]),
-            "credit": int(fila[9]),
+            "accountCode": str(fila[1]),
+            "debit": int(fila[4]),
+            "credit": int(fila[5]),
             "secondaryDebit": 0,
             "secondaryCredit": 0,
             "exchangeRate": 0,
-            "comment": str(fila[7]),
-            "fileId": fila[13],
-            "documentType": str(fila[15]),
+            "comment": str(fila[3]),
+            "fileId": fila[6],
+            "documentType": str(fila[8]),
             "documentSeries": "",
             "documentNumber": doc_numero,
             "documentExpirationDate": fecha_vencimiento,
@@ -1129,6 +1074,127 @@ def crear_payload_voucher_lines(fecha_str_input):
         "automaticFoliation": True
     }
     return payload_voucher
+
+def calcular_totales_voucher(payload_voucher):
+    """
+    Calcula los totales debe y haber de un voucher.
+    
+    Args:
+        payload_voucher (dict): Diccionario con los datos del voucher
+        
+    Returns:
+        tuple: (total_debe, total_haber)
+    """
+    total_debe = sum(item.get('debit', 0) for item in payload_voucher.get('detail', []))
+    total_haber = sum(item.get('credit', 0) for item in payload_voucher.get('detail', []))
+    return total_debe, total_haber
+
+def verificar_voucher_existente(fecha, glosa):
+    """
+    Verifica si ya existe un voucher para una fecha y glosa específicas.
+    
+    Args:
+        fecha (str): Fecha del voucher en formato 'YYYY-MM-DD'
+        glosa (str): Glosa o comentario del voucher
+        
+    Returns:
+        dict: Información del voucher si existe, None si no existe
+    """
+    conn = get_db_connection()
+    if not conn:
+        return None
+    
+    try:
+        cursor = conn.cursor(dictionary=True)
+        query = """
+        SELECT * FROM vouchers_enviados 
+        WHERE fecha = %s AND glosa = %s
+        """
+        cursor.execute(query, (fecha, glosa))
+        result = cursor.fetchone()
+        return result
+    except Error as e:
+        print(f"Error al verificar voucher existente: {e}")
+        return None
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+            
+def registrar_voucher_enviado(payload_voucher, response_data):
+    """
+    Registra en la base de datos un voucher enviado exitosamente.
+    
+    Args:
+        payload_voucher (dict): Datos del voucher enviado
+        response_data (dict): Respuesta de la API con datos del voucher registrado
+        
+    Returns:
+        bool: True si se registró correctamente, False en caso contrario
+    """
+    conn = get_db_connection()
+    if not conn:
+        return False
+    
+    try:
+        cursor = conn.cursor()
+        fecha = payload_voucher.get('header', {}).get('date')
+        glosa = payload_voucher.get('header', {}).get('comment', '')
+        total_debe, total_haber = calcular_totales_voucher(payload_voucher)
+        
+        query = """
+        INSERT INTO vouchers_enviados 
+        (fecha, glosa, total_debe, total_haber, numero_voucher, tipo_voucher, anio_fiscal, json_payload)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        
+        cursor.execute(query, (
+            fecha,
+            glosa,
+            total_debe,
+            total_haber,
+            response_data.get('number'),
+            response_data.get('voucherType'),
+            response_data.get('fiscalYear'),
+            json.dumps(payload_voucher)
+        ))
+        
+        conn.commit()
+        return True
+    except Error as e:
+        print(f"Error al registrar voucher enviado: {e}")
+        return False
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+            
+def mostrar_resultado(resultado):
+    """
+    Muestra el resultado de una operación de envío de voucher de forma amigable.
+    
+    Args:
+        resultado (dict): Diccionario con el resultado de la operación
+    """
+    if resultado.get("already_exists"):
+        print(f"El comprobante ya existe en la base de datos:")
+        print(f"  - Número: {resultado.get('number')}")
+        print(f"  - Tipo: {resultado.get('voucher_type')}")
+        print(f"  - Año fiscal: {resultado.get('fiscal_year')}")
+        print(f"  - Total Debe: ${resultado.get('total_debe'):,.2f}")
+        print(f"  - Total Haber: ${resultado.get('total_haber'):,.2f}")
+    elif resultado.get("success"):
+        print(f"Comprobante enviado y registrado exitosamente:")
+        print(f"  - Número asignado: {resultado.get('number')}")
+        print(f"  - Tipo: {resultado.get('voucher_type')}")
+        print(f"  - Año fiscal: {resultado.get('fiscal_year')}")
+        print(f"  - Total Debe: ${resultado.get('total_debe'):,.2f}")
+        print(f"  - Total Haber: ${resultado.get('total_haber'):,.2f}")
+    else:
+        print(f"Error al procesar el comprobante: {resultado.get('message')}")
+            
+            
+
 
 def subir_voucher_defontana(payload_voucher):
     """
