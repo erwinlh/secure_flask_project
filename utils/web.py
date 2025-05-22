@@ -367,7 +367,7 @@ def subir_a_defontana_por_fechas_stream(desde, hasta, tipoDte): #version de erwi
                     
                     #print(guardar_venta_result)
                     if guardar_venta_result.status_code == 200:
-                        update_query = f"update fiscales set estadoDefontana='CENTRALIZADO' where tipo = {lines[0]} and folio = {lines[1]};"                                          
+                        update_query = f"update fiscales set estadoDefontana='CENTRALIZADO', rut_defontana = '{payload_cliente['legalCode']}' where tipo = {lines[0]} and folio = {lines[1]};"                                          
                         insertar_resultados(connect(), update_query)
                         print(colored(f"  {OK_SYMBOL} DTE tipo {lines[0]} con folio {lines[1]} guardado en Defontana y actualizado en DB Local con estado CENTRALIZADO","green"))
                         yield f"  {OK_SYMBOL} DTE tipo {lines[0]} con folio {lines[1]} guardado en Defontana y actualizado en DB Local con estado CENTRALIZADO"
