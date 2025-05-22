@@ -322,7 +322,7 @@ def subir_a_defontana_por_fechas_stream(desde, hasta, tipoDte): #version de erwi
                 #yield(colored(f" {WARNING_SYMBOL}DTE tipo {lines[0]} con folio {lines[1]} se encuentra contabilizado en Defontana, continue...","yellow"))
                 yield f"  {WARNING_SYMBOL}DTE tipo {lines[0]} con folio {lines[1]} se encuentra contabilizado en Defontana, continue..."
                 try:
-                    update_query = f"update fiscales set estadoDefontana='CENTRALIZADO' where tipo = {lines[0]} and folio = {lines[1]};"
+                    update_query = f"update fiscales set estadoDefontana='CENTRALIZADO', rut_defontana = '{payload_cliente['legalCode']}' where tipo = {lines[0]} and folio = {lines[1]};"
                     
                     #marca el dte como CENTRALIZADO porque ya se encuentra contabilizado en defontana
                     insertar_resultados(connect(), update_query)

@@ -218,7 +218,7 @@ def connect():
             password=passwd,
             auth_plugin='mysql_native_password',
             charset='utf8mb4',      # El charset
-           # collation='utf8mb4_0900_ai_ci' # La collation problemas con la collation
+            # collation='utf8mb4_0900_ai_ci' # La collation problemas con la collation
             connect_timeout=1000,
         )
         

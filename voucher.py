@@ -26,8 +26,14 @@ for i in range(1):
     # Mostrar la fecha actual en formato YYYY-MM-DD
     
     try:
+        #payload_voucher = svc.crear_payload_voucher_lines(fecha)
         svc.procesar_voucher_dia(fecha.strftime('%Y-%m-%d'))
+        
         print(f"Voucher procesado Correctamentepara la fecha: {fecha.strftime('%Y-%m-%d')}")
+        #update_query = f"insert into vouchers_enviados (fecha, glosa, numero_voucher, tipo_voucher, anio_fiscal, fecha_envio, json_payload) values (%s, %s, %s, %s, %s, %s, %s)"
+        #resp = 'aqui va el response de enviar el foucher'
+        #values utiliza valores de resp
+        #values = (fecha.strftime('%Y-%m-%d'), "Voucher de prueba", "123456", "TRASPASO", 2025, fecha.strftime('%Y-%m-%d'), json.dumps({"key": "value"}))
         input("presione una tecla para continuar")
     except Exception as e:
         print(f"Error al procesar el voucher para la fecha {fecha.strftime('%Y-%m-%d')}: {e}")
