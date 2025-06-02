@@ -16,7 +16,7 @@ crea el entorno virtual y e instala las dependencias
         * En macOS/Linux: `source venv/bin/activate`
     * Una vez activado el entorno virtual, instala todas las dependencias:
         ```bash
-        pip install -r requirements.txt
+        pip install -r requeriments.txt
         ```
 
 Esto instalará todas las librerías necesarias en tu entorno virtual, asegurando que tu aplicación Flask tenga todo lo que necesita para ejecutarse correctamente.
