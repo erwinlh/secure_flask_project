@@ -6,7 +6,7 @@ import xlwt
 import io
 from termcolor import colored
 from utils.common import formatRut, convertir_fecha_iso_a_fecha_hora, convertir_datetime_a_fecha_iso, connect, insertar_resultados, ejecutar_consulta, decodificar_xml
-from utils.services import actualizar_estado_sii_masivo, consultaEstado, consultaPDF, recuperar_xml, diccionario_a_payload_cliente, consultar_cliente, guardar_cliente, diccionario_a_payload_factura, guardar_venta, consultar_venta
+from utils.services import actualizar_estado_sii_masivo, consultaEstado, consultaPDF, recuperar_xml, diccionario_a_payload_cliente, consultar_cliente, guardar_cliente, diccionario_a_payload_factura, guardar_venta
 
 rutEmisor = '76708884-1'
 tipoDte = 33
@@ -135,27 +135,28 @@ def procesar_fiscal_stream(filepath):
 
         yield f"Procesando {total_rows} filas..."
 
-        for i, fila in enumerate(hoja.iter_rows(min_row=3), start=1):  # Comenzar desde la fila 3
+        for i, fila in enumerate(hoja.iter_rows(min_row=9), start=1):  # Comenzar desde la fila 3
             valores = [celda.value for celda in fila]
 
             # Validar si la fila está vacía o incompleta (ejemplo básico)
-            if not any(valores) or valores[1] is None or valores[2] is None or valores[6] is None:
-                yield f"Advertencia: Saltando fila {i+2} por datos faltantes o vacía."
+            if not any(valores) or valores[1] is None or valores[3] is None or valores[8] is None:
+                yield f"Advertencia: Saltando fila {i+2} por datos faltantes o vacía fila {fila}"
+                print(f"{fila} + caca   ")
                 continue
 
             fecha = valores[0]
             tipo = int(valores[1]) # Asegurar que sea int para la API
-            folio = int(valores[2]) if valores[2] is not None else 0 # Asegurar que sea int
-            anticipo = valores[3] if valores[3] is not None else ''
-            conf_no = valores[4]
-            razon_social = valores[5] if valores[5] else 'S/Razón Social' # Evitar None
-            rut_raw = valores[6]
+            folio = int(valores[3]) if valores[3] is not None else 0 # Asegurar que sea int
+            anticipo = valores[4] if valores[4] is not None else ''
+            conf_no = valores[8]
+            razon_social = valores[13] if valores[13] else 'S/Razón Social' # Evitar None
+            rut_raw = valores[15]
             rut = formatRut(str(rut_raw)) if rut_raw is not None else '' # Convertir a str antes de formatear
-            neto = valores[7] if valores[7] is not None else 0
-            exento = valores[8] if valores[8] is not None else 0
-            iva = valores[9] if valores[9] is not None else 0
-            total = valores[10] if valores[10] is not None else 0
-            cajero = valores[11]
+            neto = valores[17] if valores[17] is not None else 0
+            exento = valores[20] if valores[20] is not None else 0
+            iva = valores[22] if valores[22] is not None else 0
+            total = valores[25] if valores[25] is not None else 0
+            cajero = valores[27]
             index = f"{tipo}_{folio}"
             xml_data = None
             origen = 'Opera'

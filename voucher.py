@@ -16,13 +16,13 @@ from datetime import datetime, timedelta
 
 # Obtener la fecha de inicio desde el usuario
 #fecha_str = input("Ingresa la fecha de inicio (YYYY-MM-DD): ")
-fecha_str = "2025-03-01"
+fecha_str = "2025-03-05"
 
 # Convertir la entrada de texto a un objeto datetime usando el formato YYYY-MM-DD
 fecha = datetime.strptime(fecha_str, "%Y-%m-%d")
 
 # Ejemplo: ciclo for para aumentar la fecha por 10 días
-for i in range(1):
+for i in range(100):
     # Mostrar la fecha actual en formato YYYY-MM-DD
     
     try:
@@ -31,10 +31,10 @@ for i in range(1):
         
         print(f"Voucher procesado Correctamentepara la fecha: {fecha.strftime('%Y-%m-%d')}")
         #update_query = f"insert into vouchers_enviados (fecha, glosa, numero_voucher, tipo_voucher, anio_fiscal, fecha_envio, json_payload) values (%s, %s, %s, %s, %s, %s, %s)"
-        #resp = 'aqui va el response de enviar el foucher'
+        #resp = 'aqui va el response de enviar el foucher'1
         #values utiliza valores de resp
         #values = (fecha.strftime('%Y-%m-%d'), "Voucher de prueba", "123456", "TRASPASO", 2025, fecha.strftime('%Y-%m-%d'), json.dumps({"key": "value"}))
-        input("presione una tecla para continuar")
+        #input("presione una tecla para continuar")
     except Exception as e:
         print(f"Error al procesar el voucher para la fecha {fecha.strftime('%Y-%m-%d')}: {e}")
         # Aquí puedes agregar lógica adicional para manejar el error si es necesario    

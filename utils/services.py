@@ -33,6 +33,64 @@ NEW_SYMBOL = " # "
 WARNING_SYMBOL = " ! "
 
 
+companies = {
+    "SADAS": {
+        "RUT": "76.708.884-1",
+        "company_id": 20231110191441705533,
+        "razon_social": "SADAS SPA"
+    },
+    "ADMAR": {
+        "RUT": "77.184.032-9",
+        "company_id": 20230703171704705533,
+        "razon_social": "ADMINISTRADORA ARATA ROJAS SPA."
+    },
+    "ADMA": {
+        "RUT": "76.708.884-1",
+        "company_id": 20230504131918705533,
+        "razon_social": "ADMINISTRADORA ARDAC LTDA"
+    },
+    "ComPadu": {
+        "RUT": "65.141.391-5",
+        "company_id": 20240219134214705533,
+        "razon_social": "Comunidad Edificio Paseo Dunas"
+    },
+    "ComJaro": {
+        "RUT": "56.070.050-4",
+        "company_id": 20230703160545705533,
+        "razon_social": "Comunidad Edificio Jardín Oriente"
+    },
+    "ComAlvz": {
+        "RUT": "53.321.006-6",
+        "company_id": 20230703162213705533,
+        "razon_social": "Comunidad Centro Comercial Alvarez"
+    },
+    "INAARC": {
+        "RUT": "76.161.387-1",
+        "company_id": 20230703161832705533,
+        "razon_social": "Inmobiliaria Ina ARC Ltda."
+    },
+    "INA": {
+        "RUT": "78.610.790-3",
+        "company_id": 20230613132142705533,
+        "razon_social": "Inmobiliaria Ardac S.A."
+    },
+    "INAABS": {
+        "RUT": "78.427.970-7",
+        "company_id": 20230612205856705533,
+        "razon_social": "Inmobiliaria e Inversiones ABS Spa"
+    },
+    "ARC": {
+        "RUT": "78.427.970-7",
+        "company_id": 20230612205856705533,
+        "razon_social": "Inmobiliaria e Inversiones ABS Spa"
+    }
+}
+
+
+
+
+
+
 #funciones de GDExpress
 def consultaEstado(tipo, folio, rutEmisor):    
     tipoDte = tipo
@@ -268,6 +326,38 @@ def get_token():
         print(f"Error al hacer la request de autenticación: {e}")
     return None
 
+def get_token_(company_acronym):
+    # Si no hay token o hay que renovarlo, realizar autenticación
+    client = os.getenv("client")
+    company = companies[company_acronym]["company_id"]  #este valor debe cambiar para cada empresa
+    user = os.getenv("user")
+    password = os.getenv("password")
+
+    # Construir la URL de autenticación y llamar a la API
+    base_auth_url = f"https://api.defontana.com/api/Auth"
+    params = {
+        "client": client,
+        "company": company,
+        "user": user,
+        "password": password
+    }
+    
+    
+    try:
+        resp = requests.get(base_auth_url, params=params)
+        if resp.status_code == 200:
+            response_json = resp.json()
+            access_token = response_json.get("access_token") or response_json.get("accessToken")
+            if access_token:
+                return access_token
+            else:
+                print("No se encontró 'access_token' en la respuesta:", response_json)
+        else:
+            print(f"Error autenticando: {resp.status_code} {resp.text}")
+    except Exception as e:
+        print(f"Error al hacer la request de autenticación: {e}")
+    return None
+
 # Función para obtener el header de autorización utilizando el token actual almacenado en token.conf
 def get_auth_headers():
     #token_file = "token.conf"
@@ -279,13 +369,31 @@ def get_auth_headers():
     } if access_token else {}
 
 
+def build_headers(company_acronym): #return headers
+    """AI is creating summary for build_headers
 
-def consultar_empresa():
+    Args:
+        company_acronym ([type]): [ejemplo: 'ADMA', 'SADAS', etc.]
+
+    Returns:
+        [type]: [string] con el header de autorización para la empresa
+    """
+    token = get_token_(company_acronym)
+    if not token:
+        print(f"Error obteniendo token para la empresa {company_acronym}.")
+        return None
+    return {
+        "Authorization": f"Bearer {token}"
+    } if token else {}
+    
+
+#company
+def consultar_empresa(company_acronym):
     """
     Recupera y muestra los datos de la empresa utilizando el token almacenado en token.conf.
     """
-    url_company = f"https://{apiValue}.defontana.com/api/Company"
-    headers = get_auth_headers()
+    url_company = f"https://api.defontana.com/api/Company"
+    headers = build_headers(company_acronym)
     if not headers:
         print("No se encontró un token válido. Usa primero getToken() para autenticarte.")
         return None
@@ -302,6 +410,8 @@ def consultar_empresa():
     except Exception as e:
         print(f"Error en get_company_info(): {e}")
         return None
+
+
 
 def consultar_cliente(legalCode):
     """
@@ -502,40 +612,53 @@ def guardar_cliente(datos_cliente):
         print(f"Excepción en guardar_cliente(): {e}")
         return None
 
-def consultar_venta(tipo, folio):
-    
 
-    url = f"https://{apiValue}.defontana.com/api/Sale/GetSale"
-    headers = get_auth_headers()
+
+
+#def consultar_venta(tipo, folio):
+    
+def consultar_venta_por_fechas(company_acronym, fecha_desde, fecha_hasta):
+    url = f"https://api.defontana.com/api/Sale/GetSalebyDate"
+    headers = build_headers(company_acronym)
     if not headers:
         print("No se pudo obtener un token válido para autenticar la petición.")
         return None
     
-    tipodte = tipo
-    foliodte = folio
-    
-    
+    initial_date = fecha_desde
+    ending_date = fecha_hasta
+    status = 1
+    itemsPerPage = 10000
+    pageNumber = 1
+
     params = {
-        "documentType": tipodte,
-        "number": foliodte
+        "initialDate": initial_date,
+        "endingDate": ending_date,
+        "status": status,
+        "itemsPerPage": itemsPerPage,
+        "pageNumber": pageNumber
     }
 
-
     try:
-        print(colored(f"\n{NEW_SYMBOL}Consultando venta tipo {tipodte} con folio {foliodte}...", "blue"))
+        print(colored(f"\n{NEW_SYMBOL}Consultando ventas para {company_acronym} desde {initial_date} hasta {ending_date}...", "blue"))
         resp = requests.get(url, headers=headers, params=params)
-        #print(resp)
+        
         if resp.status_code == 200:
+            data = resp.json()
+            sale_list = data.get('saleList', [])
             
-            
-            return resp.status_code
+            print(f"✅ Consulta exitosa - {len(sale_list)} ventas encontradas")
+            return sale_list
         else:
-            #print(f"Error al consultar venta: {resp.status_code} {resp.text}")
+            print(f"Error al consultar venta: {resp.status_code} {resp.text}")
+            return None
             
-            return resp.status_code
-            #return None
     except Exception as e:
-        print(f"Excepción en consultar_venta(): {e} {resp.json()}")
+        print(f"Excepción en consultar_venta(): {e}")
+        if 'resp' in locals():
+            try:
+                print(f"Respuesta: {resp.json()}")
+            except:
+                pass
         return None
 
 def diccionario_a_payload_factura(xml_data): 
@@ -781,7 +904,6 @@ def guardar_venta(payload):
     except Exception as e:
         print(f"\n Excepción en guardar_venta(): {e}")
         return None
-        
 
 
 
@@ -1002,7 +1124,7 @@ def crear_payload_voucher_lines(fecha_str_input):
     fecha_iso_8601 = fecha_obj.strftime('%Y-%m-%dT00:00:00.000Z')
     #print(f"Fecha formateada para SQL: {fecha_para_sql}")
 
-    query_voucher = f"SELECT * FROM vouchercaja where fecha = '{fecha_para_sql}' order by cuenta asc;"    
+    query_voucher = f"SELECT * FROM voucher_caja_defontana where fecha = '{fecha_para_sql}' and numero_voucher is null order by cuenta, glosa asc;"    
 
     try: 
         consulta = ejecutar_consulta(connect(), query_voucher)
@@ -1015,7 +1137,7 @@ def crear_payload_voucher_lines(fecha_str_input):
     payload_header = {
             "fiscalYear": fecha_obj.year,
             "number": 0,                    #dejar en cero para que tome correlativo
-            "voucherType": 'TRASPASO',
+            "voucherType": 'TRASPASO_CAJA',
             "date": fecha_iso_8601,
             "comment": f"Caja del {fecha_obj.day} de {fecha_obj.month} del {fecha_obj.year}",
         }
@@ -1028,14 +1150,14 @@ def crear_payload_voucher_lines(fecha_str_input):
         no_linea_detalle += 1
         
         doc_numero = 0
-        if fila[9] and str(fila[9]).isdigit():
-            doc_numero = int(fila[9])
+        if fila[8] and str(fila[8]).isdigit():
+            doc_numero = int(fila[8])
         
         fecha_vencimiento = None
-        if fila[10] and str(fila[10]).strip():  # Si hay fecha de vencimiento
+        if fila[9] and str(fila[9]).strip():  # Si hay fecha de vencimiento
             try:
                 # Convertir a formato ISO 8601
-                fecha_venc_obj = datetime.strptime(str(fila[10]), '%Y-%m-%d')
+                fecha_venc_obj = datetime.strptime(str(fila[9]), '%Y-%m-%d')
                 fecha_vencimiento = fecha_venc_obj.strftime('%Y-%m-%dT00:00:00.000Z')
             except:
                 fecha_vencimiento = None  # Si hay error, dejar en None
@@ -1049,7 +1171,7 @@ def crear_payload_voucher_lines(fecha_str_input):
             "exchangeRate": 0,
             "comment": str(fila[3]),
             "fileId": fila[6],
-            "documentType": str(fila[8]),
+            "documentType": str(fila[7]),
             "documentSeries": "",
             "documentNumber": doc_numero,
             "documentExpirationDate": fecha_vencimiento,
@@ -1120,7 +1242,7 @@ def verificar_voucher_existente(fecha, glosa):
         if conn.is_connected():
             cursor.close()
             conn.close()
-            
+
 def registrar_voucher_enviado(payload_voucher, response_data):
     """
     Registra en la base de datos un voucher enviado exitosamente.
@@ -1168,7 +1290,7 @@ def registrar_voucher_enviado(payload_voucher, response_data):
         if conn.is_connected():
             cursor.close()
             conn.close()
-            
+
 def mostrar_resultado(resultado):
     """
     Muestra el resultado de una operación de envío de voucher de forma amigable.
@@ -1192,9 +1314,6 @@ def mostrar_resultado(resultado):
         print(f"  - Total Haber: ${resultado.get('total_haber'):,.2f}")
     else:
         print(f"Error al procesar el comprobante: {resultado.get('message')}")
-            
-            
-
 
 def subir_voucher_defontana(payload_voucher):
     """
@@ -1276,8 +1395,6 @@ def subir_voucher_defontana(payload_voucher):
             "message": f"Excepción: {str(e)}",
             "error": str(e)
         }
-    
-
 
 def procesar_voucher_dia(fecha):
     """
@@ -1313,38 +1430,47 @@ def procesar_voucher_dia(fecha):
     for item in payload["detail"]:
         cuenta = item["accountCode"]
         comentario = item["comment"][:38] + '..' if len(item["comment"]) > 40 else item["comment"]
-        debe = f"${item['debit']:,.0f}" if item['debit'] > 0 else ""
-        haber = f"${item['credit']:,.0f}" if item['credit'] > 0 else ""
+        debe = f"${item['debit']}" if item['debit'] > 0 else ""
+        haber = f"${item['credit']}" if item['credit'] > 0 else ""
         
         print(f"{cuenta:<12} {comentario:<40} {debe:>12} {haber:>12}")
     
     print("-"*80)
-    print(f"{'TOTALES':^52} ${total_debito:,.0f} ${total_credito:,.0f}")
+    print(f"{'TOTALES':^52} ${total_debito} ${total_credito}")
     print("="*80)
     
     # Validación de balance
     if total_debito != total_credito:
         print(f"\n⚠️  ¡ADVERTENCIA! El voucher NO está balanceado:")
-        print(f"    Débitos: ${total_debito:,.0f}")
-        print(f"    Créditos: ${total_credito:,.0f}")
-        print(f"    Diferencia: ${total_debito - total_credito:,.0f}")
+        print(f"    Débitos: ${total_debito}")
+        print(f"    Créditos: ${total_credito}")
+        print(f"    Diferencia: ${total_debito - total_credito}")
     else:
-        print(f"\n✅ Voucher balanceado correctamente: Total=${total_debito:,.0f}")
+        print(f"\n✅ Voucher balanceado correctamente: Total=${total_debito}")
     
     # Opciones para el usuario
     print("\nOpciones:")
     print("1. Enviar comprobante a Defontana")
     print("2. Ver JSON completo")
     print("3. Cancelar")
+    print("4. Guardar comprobante en archivo CSV")
     
-    opcion = input("\nSeleccione una opción (1-3): ")
+    opcion = input("\nSeleccione una opción (1-3 o x): ")
     
     if opcion == "1":
         # Enviar a Defontana
         print("\nEnviando comprobante a Defontana...")
         respuesta = subir_voucher_defontana(payload)
-        if respuesta["success"]:
+        if respuesta['success'] > 0:
             print(f"Voucher creado exitosamente con número: {respuesta['number']}")
+            query_insert_voucher = f"insert into vouchers_enviados (fecha, glosa, total_debe, total_haber, numero_voucher, tipo_voucher, anio_fiscal) values ('{fecha}', '{payload['header']['comment']}', {total_debito}, {total_credito}, {respuesta['number']}, '{respuesta['voucher_type']}', {respuesta['fiscal_year']})"
+            #print(query_insert_voucher)
+            try:
+                insertar_resultados(connect(), query_insert_voucher)
+                print(f"Registro de voucher {respuesta['number']} enviado guardado correctamente.")
+            except Exception as e:
+                print(f"Error al guardar el registro de voucher: {e}")
+            input("Presione Enter para continuar...")
         else:
             print(f"Error: {respuesta['message']}")
         return respuesta
@@ -1362,9 +1488,49 @@ def procesar_voucher_dia(fecha):
         else:
             print("Envío cancelado por el usuario.")
             return None
+        
+    elif opcion == '4':
+        #guardar el comprobante en un archivo csv separado por comas
+        print("\nGuardando comprobante en archivo CSV...")
+        import csv
+        with open(f"voucher_{fecha}.csv", 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            
+            encabezado = {
+                f"="*80,                
+            }
+            writer.writerow(encabezado)
+            header = {
+                f"Traspaso de Caja del {fecha_obj.day} de {fecha_obj.month} del {fecha_obj.year}": "",
+            }
+            writer.writerow(header)
+            tittle = ['Cuenta', 'Detalle', 'Comentario', 'Debe', 'Haber']
+            writer.writerow(tittle)            
+            for item in payload["detail"]:
+                cuenta = item["accountCode"]
+                detalle = f"FolioType: {item['documentType']} | FolioNo: {item['documentNumber']} | RUT: {item['fileId']} | Vencimiento: {item['documentExpirationDate']}" if item['documentType'] else "" 
+                comentario = item["comment"][:38] + '..' if len(item["comment"]) > 40 else item["comment"]
+                debe = f"${item['debit']}" if item['debit'] > 0 else ""
+                haber = f"${item['credit']}" if item['credit'] > 0 else ""
+                line = [cuenta, detalle, comentario, debe, haber]
+                writer.writerow(line)
+            totals = [
+                f",,",
+                f"${total_debito}",
+                f"${total_credito}"
+            ]
+            writer.writerow(totals)
+            
+    elif opcion == "x" or opcion == "X":
+        
+        break       
+        return None    
+        print(f"Comprobante guardado en voucher_{fecha}.csv")
     else:
         print("Operación cancelada por el usuario.")
         return None
+    
+    
 
 
 
@@ -1668,3 +1834,62 @@ def procesar_fiscal_gde(filepath):
         print( f"Error general durante el procesamiento: {e}")
 
 
+
+
+
+
+
+
+
+
+
+
+
+#funciones multi empresa
+
+def procesar_todas_las_empresas():
+    """Procesa todas las empresas iterando sobre el diccionario"""
+    for company_code, company_data in companies.items():
+        company_id = company_data["company_id"]
+        RUT = company_data["RUT"]
+        razon_social = company_data["razon_social"]
+        
+        print(f"Procesando: {company_code}")
+        print(f"  Company ID: {company_id}")
+        print(f"  RUT: {RUT}")
+        print(f"  Razón Social: {razon_social}")
+        
+        # Aquí pones tu lógica/métodos que usan estas variables
+        # Por ejemplo:
+        # tu_metodo_api(company_id, RUT, razon_social)
+        print("  --> Procesado\n")
+        
+def procesar_una_empresa(sigla):
+    """Procesa una sola empresa según su código/apodo"""
+    # Buscar la empresa ignorando mayúsculas/minúsculas
+    sigla_empresa = None
+    for key in companies.keys():
+        if key.upper() == sigla.upper():
+            sigla_empresa = key
+            break
+    
+    if sigla_empresa not in companies:
+        print(f"Empresa '{sigla_empresa}' no encontrada")
+        return False
+    
+    company_data = companies[sigla_empresa]
+    company_id = company_data["company_id"]
+    RUT = company_data["RUT"]
+    razon_social = company_data["razon_social"]
+    
+    print(f"Procesando: {sigla_empresa}")
+    print(f"  Company ID: {company_id}")
+    print(f"  RUT: {RUT}")
+    print(f"  Razón Social: {razon_social}")
+    
+    # Aquí pones tu lógica/métodos que usan estas variables
+    # Por ejemplo:
+    # tu_metodo_api(company_id, RUT, razon_social)
+    print("  --> Procesado\n")
+    
+    return True
